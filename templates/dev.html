@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Home Page{% endblock %}
+{% block body_id %}homeBody{% endblock %}
+{% block content %}
+
+<div class="logs" id="logoutButton">
+    <a href="{{ url_for('logout') }}">Logout</a>
+</div>
+
+<div class="navbar">
+    <a href="{{ url_for('home') }}">Home</a>
+</div>
+    <!--{#
+    <div id="buildTable">
+        <table border="1px solid black">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Instructions</th>
+                <th>Link</th>
+                <th>Button</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for build in builds %}
+            <tr>
+                <td>{{ build.name }}</td>
+                <td>{{ build.description}}</td>
+                <td>{{ build.instructions }}</td>
+                <td>{{ build.link }}</td>
+                <td>
+                    <form action="{{ url_for('deleteBuild', id=entry.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="button">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>  #}-->
+
+    <center>
+    <div id="newBuild">
+        <h2>Upload your new build here: </h2>
+        <form action="/uploadBuild" method="POST" id="uploadBuildForm">
+            <div id="gridContainer">
+                <label for="buildName">Name:</label>
+                <input type="text" id="buildName" name="buildName" placeholder="" required>
+
+                <label for="description">Description:</label>
+                <input type="text" id="description" name="description" placeholder="" required>
+
+                <label for="instructions">Instructions:</label>
+                <input type="text" id="instructions" name="instructions" placeholder="" required>
+
+                <label for="link">Build Link:</label>
+                <input type="text" id="link" name="link" placeholder="" required>
+
+            </div>
+            <br><br>
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+</center>
+
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block body_id %}loginBody{% endblock %}
+{% block content %}
+<div class="logs" id="loginButtons">
+    <a href="{{ url_for('login') }}">Login</a>
+</div>
+
+<div class="navbar">
+    <a href="{{ url_for('home') }}">Home</a>
+</div>
+<center>
+    <div id="login">
+        <h2>Enter Information Here: </h2>
+        <form action="/loggingIn" method="POST" id="loginForm">
+            <div id="gridContainer">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" placeholder="Username" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Password" required>
+                <p>{{wrong_password}}</p>
+
+            </div>
+            <br><br>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</center>
+{% endblock %}

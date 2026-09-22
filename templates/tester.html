@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Home Page{% endblock %}
+{% block body_id %}homeBody{% endblock %}
+{% block content %}
+
+<div class="logs" id="logoutButton">
+    <a href="{{ url_for('logout') }}">Logout</a>
+</div>
+
+<div class="navbar">
+    <a href="{{ url_for('home') }}">Home</a>
+</div>
+    <center><h1> This will be tester dashboard page</h1></center>
+</div>
+
+{% endblock %}

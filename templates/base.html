@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/html-logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootsrap/css/style.css') }}">
+</head>
+
+<body id="{% block body_id %}{% endblock %}">
+
+    {% block content %}{% endblock %}
+
+</body>
+</html>

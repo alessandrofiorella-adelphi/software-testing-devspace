@@ -1,0 +1,58 @@
+.navbar {
+	display:flex;
+	margin-bottom:15px;
+}
+
+.navbar a {
+	padding:8px;
+	margin-right:15px;
+	border:1px solid black;
+	border-radius:5px;
+	text-decoration:none;
+	color:white;
+	font-size:24px;
+	background:black;
+}
+
+.navbar a:hover {
+	background-color:gray;
+	transition: background-color 0.5s ease, width 0.5s ease;
+}
+
+.navbar .active {
+	background:gray;
+}
+
+#loginButtons {
+    float:right;
+}
+
+#logoutButton {
+    float:right;
+}
+
+#entry {
+    width:300px;
+    height:200px;
+}
+
+#entries {
+      display: flex;
+      align-items: center;
+      flex-direction:column;
+}
+
+#gridContainer {
+	display:grid;
+	grid-template-columns:1fr 1fr;
+}
+
+@media (max-width: 600px) {
+  #gridContainer {
+    grid-template-columns: 1fr;
+  }
+}
+
+#loginForm {
+    width:50%;
+}
