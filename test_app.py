@@ -42,7 +42,7 @@ def captured_templates(app):
         template_rendered.disconnect(record, app)
 
 
-# --- Your Actual Test Case ---
+# --- Actual Tests ---
 
 def test_homepage_template(client, captured_templates):
     # 1. Make the request to your target route (adjust "/" to your route path)
@@ -117,31 +117,6 @@ def test_logout_success(client, captured_templates):
     template, context = captured_templates[0]
     assert template.name == "index.html"
 
-"""
-Future Tests:
-What if goes to wrong route? Backup route?
-What if app crashes? Graceful close?
-
-def test_user_access(client, captured_templates):
-    response = client.post('/loggingIn', data={
-        'username': 'admin',
-        'password': 'badadminpassword'
-    }, follow_redirects=True)
-
-    assert response.status_code == 200
-
-    assert len(captured_templates) == 1
-
-    template, context = captured_templates[0]
-    assert template.name == "user.html" 
-
-def test_logout_fail(client, captured_templates):
-    response = client.get("/logout")
-    assert response.status_code == 200
-"""
-
-#
-
 def test_good_build_creation(client, captured_templates):
     client.post('/loggingIn', data={
         'username': 'alessandrofiorella@mail.adelphi.edu',
@@ -178,20 +153,19 @@ def test_bad_build_creation(client, captured_templates):
     }, follow_redirects=True)
 
     response = client.post('/uploadBuild', data={
-        'buildName': 6,
-        'description': 'Lorem ipsum dolor sit amet',
+        'buildName': "MySpace",
+        'description': None,
         'instructions': 'Lorem ipsum dolor sit amet',
         'link': 'https://en.wikipedia.org/wiki/Myspace'
     }, follow_redirects=True)
 
-    response = client.get("/uploadBuild")
-
     assert response.status_code == 200
 
-    assert len(captured_templates) == 3
+    assert len(captured_templates) == 2
 
-    template, context = captured_templates[0]
+    template, context = captured_templates[-1]
     assert template.name == "dev.html"
+    assert context["invalid_build"] == "Invalid build information!"
 
     build = db.session.execute(
         db.select(Build).filter_by(name='MySpace')
@@ -199,3 +173,25 @@ def test_bad_build_creation(client, captured_templates):
 
     assert build is None
 
+"""
+Future Tests:
+What if goes to wrong route? Backup route?
+What if app crashes? Graceful close?
+
+def test_user_access(client, captured_templates):
+    response = client.post('/loggingIn', data={
+        'username': 'admin',
+        'password': 'badadminpassword'
+    }, follow_redirects=True)
+
+    assert response.status_code == 200
+
+    assert len(captured_templates) == 1
+
+    template, context = captured_templates[0]
+    assert template.name == "user.html" 
+
+def test_logout_fail(client, captured_templates):
+    response = client.get("/logout")
+    assert response.status_code == 200
+"""

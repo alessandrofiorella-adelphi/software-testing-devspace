@@ -28,7 +28,7 @@ def register_routes(app, db, bcrypt):
     @login_required
     def uploadBuild():
         if request.method == 'GET':
-            return render_template('dev.html'), 200
+            return render_template('dev.html', invalid_build = "Invalid build information!"), 200
         elif request.method == 'POST':
             name = request.form.get('buildName')
             description = request.form.get('description')
@@ -37,7 +37,11 @@ def register_routes(app, db, bcrypt):
 
             build = Build(name, description, instructions, link, current_user.uid)
             db.session.add(build)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                return redirect(url_for('uploadBuild'))
 
             return redirect(url_for('dev'))
 

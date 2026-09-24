@@ -36,7 +36,7 @@ class Build(db.Model, UserMixin):
     name = db.Column(db.String(80), unique=False, nullable=False)
     description = db.Column(db.Text, unique=False, nullable=False)
     instructions = db.Column(db.Text, unique=False, nullable=False)
-    link = db.Column(db.String(80), unique=False, nullable=False)
+    link = db.Column(db.Text, unique=False, nullable=False)
     developerID = db.Column(db.Integer, db.ForeignKey('users.uid'), nullable=False)
 
     def __init__(self, name, desc, instructions, link, devID):
