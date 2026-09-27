@@ -6,13 +6,16 @@ from flask_bcrypt import Bcrypt
 
 db = SQLAlchemy()
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__, template_folder='templates', static_folder='static', static_url_path='/')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///./devspace.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['USER'] = 'admin'
     app.config['PASSWORD'] = 'badadminpassword'
     app.secret_key = 'webby'
+
+    if test_config:
+        app.config.update(test_config)
 
     db.init_app(app)
 

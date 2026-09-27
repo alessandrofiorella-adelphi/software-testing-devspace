@@ -10,7 +10,7 @@
 <div class="navbar">
     <a href="{{ url_for('home') }}">Home</a>
 </div>
-    <!--{#
+<center>
     <div id="buildTable">
         <table border="1px solid black">
             <thead>
@@ -28,9 +28,9 @@
                 <td>{{ build.name }}</td>
                 <td>{{ build.description}}</td>
                 <td>{{ build.instructions }}</td>
-                <td>{{ build.link }}</td>
+                <td><a href="{{ build.link }}" target="_blank">{{ build.link }}</a></td>
                 <td>
-                    <form action="{{ url_for('deleteBuild', id=entry.id) }}" method="POST" style="display:inline;">
+                    <form action="{{ url_for('dev', id=build.id) }}" method="POST" style="display:inline;">
                         <button type="submit" class="button">Delete</button>
                     </form>
                 </td>
@@ -38,10 +38,9 @@
             {% endfor %}
             </tbody>
         </table>
-    </div>  #}-->
-
-    <center>
-    <div id="newBuild">
+        <button onclick="toggleVisibility()"> Upload New Build </button>
+    </div>
+    <div id="newBuild" {% if not invalid_build %}hidden{% endif %}>
         <h2>Upload your new build here: </h2>
         <form action="/uploadBuild" method="POST" id="uploadBuildForm">
             <div id="gridContainer">
@@ -64,5 +63,11 @@
         </form>
     </div>
 </center>
-
+<script>
+        function toggleVisibility() {
+            var element = document.getElementById("newBuild");
+            // Toggles the 'hidden' class on click
+            element.toggleAttribute("hidden");
+        }
+</script>
 {% endblock %}

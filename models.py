@@ -13,7 +13,6 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     is_dev = db.Column(db.Boolean, default=False)
-
     builds = db.relationship('Build', backref='user', lazy=True)
 
     def __init__(self, fname, lname, username, password_hash, is_dev=False):

@@ -11,6 +11,39 @@
     <a href="{{ url_for('home') }}">Home</a>
 </div>
 <center>
-    <h1> Hi </h1>
+    <div id="buildTable">
+        <table border="1px solid black">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Instructions</th>
+                <th>Link</th>
+                <th>Developer Name </th>
+                <th>Leave Feedback</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for build in builds %}
+            <tr>
+                <td>{{ build.name }}</td>
+                <td>{{ build.description}}</td>
+                <td>{{ build.instructions }}</td>
+                <td>
+                        <a href="{{ build.link }}" target="_blank"
+                        onclick="return confirm('You are being redirected to an external website to access this build. Please exercise caution when downloading any programs/executables');">
+                        {{ build.link }}
+                        </a>
+                </td>
+                <td> {{ build.user.fname }} {{build.user.lname}}</td>
+                <td>
+                    <form action="{{ url_for('comment', id=build.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="button">Comment</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
 </center>
 {% endblock %}

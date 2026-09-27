@@ -173,6 +173,59 @@ def test_bad_build_creation(client, captured_templates):
 
     assert build is None
 
+def test_build_link_warning (client, captured_templates):
+    client.post('/loggingIn', data={
+        'username': 'timothykravets@mail.adelphi.edu',
+        'password': 'doggie321'
+    })
+
+    client.post('/uploadBuild', data={
+        'buildName': 'MySpace',
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace'
+    })
+
+    response = client.get('/')
+
+    assert response.status_code == 200
+
+    assert len(captured_templates) == 1
+
+    template, context = captured_templates[0]
+    assert template.name == "index.html"
+
+    assert b'onclick=' in response.data
+    assert b'confirm(' in response.data
+    assert b'https://en.wikipedia.org/wiki/Myspace' in response.data
+    assert b'You are being redirected to an external website to access this build. Please exercise caution when downloading any programs/executables' in response.data
+
+def test_comment_feedback (client, captured_templates):
+    client.post('/loggingIn', data={
+        'username': 'timothykravets@mail.adelphi.edu',
+        'password': 'doggie321'
+    })
+
+    client.post('/uploadBuild', data={
+        'buildName': 'MySpace',
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace'
+    })
+
+    response = client.post('/comment/1', data={
+        'testTime': '9/24/2026',
+        'feedback': 'Lorem ipsum dolor sit amet',
+    })
+
+    assert response.status_code == 200
+
+    assert len(captured_templates) == 1
+
+    template, context = captured_templates[0]
+    assert template.name == "index.html"
+
+
 """
 Future Tests:
 What if goes to wrong route? Backup route?

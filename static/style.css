@@ -31,17 +31,6 @@
     float:right;
 }
 
-#entry {
-    width:300px;
-    height:200px;
-}
-
-#entries {
-      display: flex;
-      align-items: center;
-      flex-direction:column;
-}
-
 #gridContainer {
 	display:grid;
 	grid-template-columns:1fr 1fr;
