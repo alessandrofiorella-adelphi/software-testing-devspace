@@ -1,3 +1,5 @@
+import datetime
+
 from flask_login import UserMixin
 from sqlalchemy import ForeignKey
 
@@ -14,6 +16,7 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(128), nullable=False)
     is_dev = db.Column(db.Boolean, default=False)
     builds = db.relationship('Build', backref='user', lazy=True)
+    feedbacks = db.relationship('Feedback', backref='user', lazy=True)
 
     def __init__(self, fname, lname, username, password_hash, is_dev=False):
         self.fname = fname
@@ -37,6 +40,7 @@ class Build(db.Model, UserMixin):
     instructions = db.Column(db.Text, unique=False, nullable=False)
     link = db.Column(db.Text, unique=False, nullable=False)
     developerID = db.Column(db.Integer, db.ForeignKey('users.uid'), nullable=False)
+    feedbacks = db.relationship('Feedback', backref='build', lazy=True)
 
     def __init__(self, name, desc, instructions, link, devID):
         self.name = name
@@ -44,3 +48,19 @@ class Build(db.Model, UserMixin):
         self.instructions = instructions
         self.link = link
         self.developerID = devID
+
+class Feedback(db.Model, UserMixin):
+    __tablename__ = 'feedbacks'
+
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, default=datetime.UTC, nullable=False)
+    comment = db.Column(db.Text, unique=False, nullable=False)
+    accepted = db.Column(db.Boolean, default=False, nullable=False)
+    buildId = db.Column(db.Integer, db.ForeignKey('builds.id'), nullable=False)
+    testerId = db.Column(db.Integer, db.ForeignKey('users.uid'), nullable=False)
+
+    def __init__(self, date, comment, buildId, testerId):
+        self.date = date
+        self.comment = comment
+        self.buildId = buildId
+        self.testerId = testerId

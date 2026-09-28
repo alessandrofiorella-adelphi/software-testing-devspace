@@ -1,7 +1,9 @@
 from flask import request, render_template, flash, redirect, url_for
 from flask_login import login_user, logout_user, login_required, current_user
 
-from models import User, Build
+from models import User, Build, Feedback
+
+import datetime
 
 # Home route
 # A route is a URL pattern that is mapped to
@@ -24,7 +26,10 @@ def register_routes(app, db, bcrypt):
     @login_required
     def dev():
         builds = Build.query.filter_by(developerID=current_user.uid).all()
-        return render_template('dev.html', builds=builds), 200
+        feedback = []
+        for build in builds:
+            feedback += Feedback.query.filter_by(buildId=build.id).all()
+        return render_template('dev.html', builds=builds, feedback = feedback), 200
 
     @app.route('/uploadBuild', methods=['GET', 'POST'])
     @login_required
@@ -74,15 +79,36 @@ def register_routes(app, db, bcrypt):
     @app.route('/comment/<int:id>', methods=['GET', 'POST'])
     @login_required
     def comment(id):
-        return render_template('comment.html'), 200
+        build = Build.query.filter_by(id = id).first()
+        return render_template('comment.html', build=build), 200
 
-    @app.route('/giveFeedback', methods=['GET', 'POST'])
+    @app.route('/giveFeedback/<int:id>', methods=['GET', 'POST'])
     @login_required
-    def giveFeedback():
+    def giveFeedback(id):
         if request.method == 'GET':
-            return render_template('comment.html'), 200
+            build = Build.query.filter_by(id=id).first()
+            return render_template('comment.html', build=build), 200
         elif request.method == 'POST':
-            testTime = request.form.get('testTime')
-            feedback = request.form.get('feedback')
+            testTime = datetime.date.fromisoformat(request.form.get('testTime'))
+            comment = request.form.get('comment')
+
+            feedback = Feedback(testTime, comment, id, current_user.uid)
+            db.session.add(feedback)
+            try:
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                return redirect(url_for('giveFeedback', id=id))
 
             return redirect(url_for('home'))
+
+    @app.route('/acceptFeedback/<int:id>', methods=['GET', 'POST'])
+    @login_required
+    def acceptFeedback(id):
+        if request.method == 'GET':
+            return redirect(url_for('dev'))
+        elif request.method == 'POST':
+            feedback = Feedback.query.filter_by(id=id).first()
+            feedback.accepted = True
+            db.session.commit()
+            return redirect(url_for('dev'))

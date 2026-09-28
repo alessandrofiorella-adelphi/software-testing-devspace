@@ -1,8 +1,8 @@
-import pytest
+import pytest, datetime
 from flask import template_rendered
 # 1. Import your factory function from app.py
 from app import create_app, db
-from models import User, Build
+from models import User, Build, Feedback
 
 
 @pytest.fixture
@@ -108,7 +108,12 @@ def test_login_fail(client, captured_templates):
     assert context.get('wrong_password') == "Invalid username or password!"
 
 def test_logout_success(client, captured_templates):
-    response = client.get("/logout")
+    client.post('/loggingIn', data={
+        'username': 'timothykravets@mail.adelphi.edu',
+        'password': 'doggie321'
+    })
+
+    response = client.get("/logout", follow_redirects=True)
 
     assert response.status_code == 200
 
@@ -213,10 +218,10 @@ def test_comment_feedback (client, captured_templates):
         'link': 'https://en.wikipedia.org/wiki/Myspace'
     })
 
-    response = client.post('/comment/1', data={
-        'testTime': '9/24/2026',
-        'feedback': 'Lorem ipsum dolor sit amet',
-    })
+    response = client.post('/giveFeedback/1', data={
+        'testTime': '2026-09-30',
+        'comment': 'Lorem ipsum dolor sit amet',
+    }, follow_redirects=True)
 
     assert response.status_code == 200
 
@@ -224,6 +229,60 @@ def test_comment_feedback (client, captured_templates):
 
     template, context = captured_templates[0]
     assert template.name == "index.html"
+
+    feedback = db.session.execute(
+        db.select(Feedback).filter_by(comment='Lorem ipsum dolor sit amet')
+    ).scalar_one_or_none()
+
+    assert feedback is not None
+    assert feedback.date == datetime.date(2026, 9, 30)
+    assert feedback.comment == 'Lorem ipsum dolor sit amet'
+    assert feedback.buildId == 1
+    assert feedback.testerId == 3
+
+def test_accept_comment (client, captured_templates):
+    client.post('/loggingIn', data={
+        'username': 'timothykravets@mail.adelphi.edu',
+        'password': 'doggie321'
+    })
+
+    client.post('/uploadBuild', data={
+        'buildName': 'MySpace',
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace'
+    })
+
+    client.post('/giveFeedback/1', data={
+        'testTime': '2026-09-30',
+        'comment': 'Lorem ipsum dolor sit amet',
+    })
+
+    response = client.get('/dev')
+
+    assert response.status_code == 200
+
+    assert len(captured_templates) == 1
+
+    template, context = captured_templates[0]
+    assert template.name == "dev.html"
+
+    feedback = db.session.execute(
+        db.select(Feedback).filter_by(comment='Lorem ipsum dolor sit amet')
+    ).scalar_one_or_none()
+
+    assert feedback is not None
+    assert feedback.date == datetime.date(2026, 9, 30)
+    assert feedback.comment == 'Lorem ipsum dolor sit amet'
+    assert feedback.accepted == False
+    assert feedback.buildId == 1
+    assert feedback.testerId == 3
+
+    client.post('/acceptFeedback/1', data={})
+
+    assert feedback.accepted == True
+
+
 
 
 """

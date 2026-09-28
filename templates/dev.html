@@ -38,6 +38,7 @@
             {% endfor %}
             </tbody>
         </table>
+        <br>
         <button onclick="toggleVisibility()"> Upload New Build </button>
     </div>
     <div id="newBuild" {% if not invalid_build %}hidden{% endif %}>
@@ -61,6 +62,35 @@
             <br><br>
             <button type="submit">Upload</button>
         </form>
+    </div>
+    <hr>
+    <h2>Feedback to Approve</h2>
+    <div>
+        <table border = "1px solid black">
+            <thead>
+                <th> Date </th>
+                <th> Comment </th>
+                <th> Tester Name </th>
+                <th>  </th>
+            </thead>
+            <tbody>
+            {% for comment in feedback %}
+            {% if comment.accepted == False %}
+            <tr>
+                <td> {{ comment.date }} </td>
+                <td> {{ comment.comment }} </td>
+                <td> {{ comment.user.fname}} {{ comment.user.lname }}</td>
+                <td>
+                    <form action="{{ url_for('acceptFeedback', id=comment.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="button"> Approve Feedback </button>
+                    </form>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            </tbody>
+
+        </table>
     </div>
 </center>
 <script>

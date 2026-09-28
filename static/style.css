@@ -23,6 +23,15 @@
 	background:gray;
 }
 
+#commentsTable {
+    display:flex;
+    justify-content:center;
+}
+
+#comment {
+    margin-bottom:50px;
+}
+
 #loginButtons {
     float:right;
 }

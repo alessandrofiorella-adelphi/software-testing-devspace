@@ -20,7 +20,7 @@
                 <th>Instructions</th>
                 <th>Link</th>
                 <th>Developer Name </th>
-                <th>Leave Feedback</th>
+                <th>Feedback</th>
             </tr>
             </thead>
             <tbody>
@@ -36,11 +36,22 @@
                         </a>
                 </td>
                 <td> {{ build.user.fname }} {{build.user.lname}}</td>
+                {#
+                {% if build.feedbacks == []%}
                 <td>
-                    <form action="{{ url_for('comment', id=build.id) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="button">Comment</button>
-                    </form>
+
                 </td>
+                {% else %} {% endif %}#}
+                    <td id="comments">
+                        <table id="commentsTable">
+                    {% for feedback in build.feedbacks %}
+                        {% if feedback.accepted %} <tr id="comment" > <td> {{ feedback.comment }} </td></tr>{% endif %}
+                    {% endfor %}
+                        </table>
+                        <form action="{{ url_for('comment', id=build.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="button">Comment</button>
+                        </form>
+                    </td>
             </tr>
             {% endfor %}
             </tbody>

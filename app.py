@@ -27,7 +27,7 @@ def create_app(test_config=None):
     login_manager.session_protection = "strong"
 
     # prevent circular imports by importing here
-    from models import User, Build
+    from models import User, Build, Feedback
     # When a user is logged in, this callback is used to reload the user object from the user ID stored in the session.
     @login_manager.user_loader
     def load_user(user_id):
