@@ -9,6 +9,7 @@
 
 <div class="navbar">
     <a href="{{ url_for('home') }}">Home</a>
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
 </div>
 <center>
     <div id="buildTable">
@@ -42,6 +43,7 @@
 
                 </td>
                 {% else %} {% endif %}#}
+                <div>
                     <td id="comments">
                         <table id="commentsTable">
                     {% for feedback in build.feedbacks %}
@@ -52,9 +54,11 @@
                             <button type="submit" class="button">Comment</button>
                         </form>
                     </td>
+                </div>
             </tr>
             {% endfor %}
             </tbody>
         </table>
+
 </center>
 {% endblock %}

@@ -56,6 +56,7 @@ class Feedback(db.Model, UserMixin):
     date = db.Column(db.Date, default=datetime.UTC, nullable=False)
     comment = db.Column(db.Text, unique=False, nullable=False)
     accepted = db.Column(db.Boolean, default=False, nullable=False)
+    rejected = db.Column(db.Boolean, default=False, nullable=False)
     buildId = db.Column(db.Integer, db.ForeignKey('builds.id'), nullable=False)
     testerId = db.Column(db.Integer, db.ForeignKey('users.uid'), nullable=False)
 

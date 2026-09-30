@@ -26,10 +26,18 @@ def register_routes(app, db, bcrypt):
     @login_required
     def dev():
         builds = Build.query.filter_by(developerID=current_user.uid).all()
-        feedback = []
+        allFeedback = []
+        rejected = False
+        accepted = False
         for build in builds:
-            feedback += Feedback.query.filter_by(buildId=build.id).all()
-        return render_template('dev.html', builds=builds, feedback = feedback), 200
+            feedback = Feedback.query.filter_by(buildId=build.id).all()
+            allFeedback += feedback
+            for elem in feedback:
+                if elem.rejected:
+                    rejected = True
+                if elem.accepted:
+                    accepted = True
+        return render_template('dev.html', builds=builds, feedback = allFeedback, rejected = rejected, accepted = accepted), 200
 
     @app.route('/uploadBuild', methods=['GET', 'POST'])
     @login_required
@@ -92,6 +100,8 @@ def register_routes(app, db, bcrypt):
             testTime = datetime.date.fromisoformat(request.form.get('testTime'))
             comment = request.form.get('comment')
 
+
+
             feedback = Feedback(testTime, comment, id, current_user.uid)
             db.session.add(feedback)
             try:
@@ -110,5 +120,26 @@ def register_routes(app, db, bcrypt):
         elif request.method == 'POST':
             feedback = Feedback.query.filter_by(id=id).first()
             feedback.accepted = True
+            feedback.rejected = False
             db.session.commit()
             return redirect(url_for('dev'))
+
+    @app.route('/rejectFeedback/<int:id>', methods=['GET', 'POST'])
+    @login_required
+    def rejectFeedback(id):
+        if request.method == 'GET':
+            return redirect(url_for('dev'))
+        elif request.method == 'POST':
+            feedback = Feedback.query.filter_by(id=id).first()
+            feedback.rejected = True
+            feedback.accepted = False
+            db.session.commit()
+            return redirect(url_for('dev'))
+
+    @app.route('/dashboard', methods=['GET', 'POST'])
+    @login_required
+    def dashboard():
+        if current_user.is_dev:
+            return redirect(url_for('dev'))
+        else:
+            return redirect(url_for('tester'))

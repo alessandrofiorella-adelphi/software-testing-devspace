@@ -11,7 +11,7 @@
     <a href="{{ url_for('home') }}">Home</a>
 </div>
 <center>
-    <div id="buildTable">
+    <div id="buildTable" {% if not builds %} hidden {%endif %}>
         <table border="1px solid black">
             <thead>
             <tr>
@@ -39,8 +39,8 @@
             </tbody>
         </table>
         <br>
-        <button onclick="toggleVisibility()"> Upload New Build </button>
     </div>
+        <button onclick="toggleVisibility()"> Upload New Build </button>
     <div id="newBuild" {% if not invalid_build %}hidden{% endif %}>
         <h2>Upload your new build here: </h2>
         <form action="/uploadBuild" method="POST" id="uploadBuildForm">
@@ -64,8 +64,8 @@
         </form>
     </div>
     <hr>
-    <h2>Feedback to Approve</h2>
-    <div>
+    <div {% if feedback == [] %} hidden {%endif %}>
+        <h2>Feedback to Approve</h2>
         <table border = "1px solid black">
             <thead>
                 <th> Date </th>
@@ -75,7 +75,7 @@
             </thead>
             <tbody>
             {% for comment in feedback %}
-            {% if comment.accepted == False %}
+            {% if comment.accepted == False and comment.rejected == False%}
             <tr>
                 <td> {{ comment.date }} </td>
                 <td> {{ comment.comment }} </td>
@@ -83,6 +83,65 @@
                 <td>
                     <form action="{{ url_for('acceptFeedback', id=comment.id) }}" method="POST" style="display:inline;">
                         <button type="submit" class="button"> Approve Feedback </button>
+                    </form>
+                    <form action="{{ url_for('rejectFeedback', id=comment.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="button"> Reject Feedback </button>
+                    </form>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+    <div {% if not rejected %} hidden {%endif %}>
+        <h2>Rejected Feedback</h2>
+        <table border = "1px solid black">
+            <thead>
+                <th> Date </th>
+                <th> Comment </th>
+                <th> Tester Name </th>
+                <th>  </th>
+            </thead>
+            <tbody>
+            {% for comment in feedback %}
+            {% if comment.rejected %}
+            <tr>
+                <td> {{ comment.date }} </td>
+                <td> {{ comment.comment }} </td>
+                <td> {{ comment.user.fname}} {{ comment.user.lname }}</td>
+                <td>
+                    <form action="{{ url_for('acceptFeedback', id=comment.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="button"> Approve Feedback </button>
+                    </form>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+    <div {% if not accepted %} hidden {%endif %}>
+        <h2>Accepted Feedback</h2>
+        <table border = "1px solid black">
+            <thead>
+                <th> Date </th>
+                <th> Comment </th>
+                <th> Tester Name </th>
+                <th>  </th>
+            </thead>
+            <tbody>
+            {% for comment in feedback %}
+            {% if comment.accepted%}
+            <tr>
+                <td> {{ comment.date }} </td>
+                <td> {{ comment.comment }} </td>
+                <td> {{ comment.user.fname}} {{ comment.user.lname }}</td>
+                <td>
+                    <form action="{{ url_for('rejectFeedback', id=comment.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="button"> Reject Feedback </button>
                     </form>
                 </td>
             </tr>
