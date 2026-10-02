@@ -1,3 +1,5 @@
+/**/
+/* Navigation Bar */
 .navbar {
 	display:flex;
 	margin-bottom:15px;
@@ -51,6 +53,7 @@
   }
 }
 
+/* Login Page */
 #loginForm {
     width:50%;
 }

@@ -3,9 +3,15 @@
 {% block body_id %}homeBody{% endblock %}
 {% block content %}
 
-<div class="logs" id="loginButtons">
+<div class="navbar" id="loginButtons">
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('logout') }}">Logout</a>
+    {% else %}
     <a href="{{ url_for('login') }}">Login</a>
+    <a href="{{ url_for('signup') }}">Sign Up</a>
+    {% endif %}
 </div>
+
 
 <div class="navbar">
     <a href="{{ url_for('home') }}">Home</a>

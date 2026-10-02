@@ -8,15 +8,13 @@ from models import User, Build, Feedback
 @pytest.fixture
 def app():
     """Create and configure a new app instance for each test."""
-    app = create_app()
-    app.config.update({
+    app = create_app({
         "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:"  # Uses a fast, in-memory DB for tests
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:"
     })
 
     # Set up application context for extensions like SQLAlchemy
     with app.app_context():
-        db.create_all()
         yield app
         db.session.remove()
         db.drop_all()
@@ -282,6 +280,20 @@ def test_accept_comment (client, captured_templates):
 
     assert feedback.accepted == True
 
+def test_signup_page (client, captured_templates):
+    response = client.get("/signup")
+
+    # 2. Check that the request succeeded
+    assert response.status_code == 200
+
+    # 3. Assert exactly one template was rendered
+    assert len(captured_templates) == 1
+
+    # 4. Verify the template name
+    template, context = captured_templates[0]
+    assert template.name == "signup.html"
+
+#def test_account_creation (client, captured_templates):
 
 
 

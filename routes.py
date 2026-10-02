@@ -143,3 +143,7 @@ def register_routes(app, db, bcrypt):
             return redirect(url_for('dev'))
         else:
             return redirect(url_for('tester'))
+
+    @app.route('/signup', methods=['GET'])
+    def signup():
+        return render_template('signup.html')
