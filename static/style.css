@@ -1,3 +1,36 @@
+/*
+*	General Styling (Whole Project)
+*/
+* {
+	/* Chosen for it's user-accessibility. */
+	font-family: Verdana;
+}
+.body {
+    margin: 0;
+    padding: 20px;
+    padding-top: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    flex-direction: row;
+}
+
+#gridContainer {
+	display:grid;
+	grid-template-columns:1fr 1fr;
+}
+
+@media (max-width: 600px) {
+  #gridContainer {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/*
+*	Navbar
+*/
 .navbar {
 	display:flex;
 	margin-bottom:15px;
@@ -23,6 +56,9 @@
 	background:gray;
 }
 
+/*
+*	Comments
+*/
 #commentsTable {
     display:flex;
     justify-content:center;
@@ -32,6 +68,9 @@
     margin-bottom:50px;
 }
 
+/*
+* Login
+*/
 #loginButtons {
     float:right;
 }
@@ -40,17 +79,27 @@
     float:right;
 }
 
-#gridContainer {
-	display:grid;
-	grid-template-columns:1fr 1fr;
-}
-
-@media (max-width: 600px) {
-  #gridContainer {
-    grid-template-columns: 1fr;
-  }
-}
-
 #loginForm {
     width:50%;
+    max-width: 500px;
+    margin: 40px auto;
+    border: 2px solid;
+    border-radius: 8px;
+    padding: 30px;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/*
+*	Developer View
+*/
+.box-holder {
+	max-width: 100vh;
+    width: 90%;
+    margin: 0 auto;
+    border: 2px solid;
+    border-radius: 8px;
+    overflow: hidden;
+
 }

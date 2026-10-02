@@ -12,7 +12,20 @@
 </div>
 <center>
     <div id="buildTable" {% if not builds %} hidden {%endif %}>
-        <table border="1px solid black">
+        {% for build in builds %}
+            <div class="build-container">
+                <h1>{{ build.name }}</h1>
+                <p><b>Description:</b> {{ build.description}}</p>
+                <p><b>Instructions:</b> {{ build.instructions }}</p>
+                <b><a href="{{ build.link }}" target="_blank">Build Link</a></b>
+                <td>
+                    <form action="{{ url_for('dev', id=build.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="button">Delete</button>
+                    </form>
+                </td>
+            </div>
+            {% endfor %}
+        <!--<table border="1px solid black">
             <thead>
             <tr>
                 <th>Name</th>
@@ -37,7 +50,7 @@
             </tr>
             {% endfor %}
             </tbody>
-        </table>
+        </table>-->
         <br>
     </div>
         <button onclick="toggleVisibility()"> Upload New Build </button>
