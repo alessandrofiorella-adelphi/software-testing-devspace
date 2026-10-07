@@ -11,152 +11,177 @@
     <a href="{{ url_for('home') }}">Home</a>
 </div>
 <center>
-    <div id="buildTable" {% if not builds %} hidden {%endif %}>
-        <table border="1px solid black">
-            <thead>
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Instructions</th>
-                <th>Link</th>
-                <th>Button</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for build in builds %}
-            <tr>
-                <td>{{ build.name }}</td>
-                <td>{{ build.description}}</td>
-                <td>{{ build.instructions }}</td>
-                <td><a href="{{ build.link }}" target="_blank">{{ build.link }}</a></td>
-                <td>
-                    <form action="{{ url_for('dev', id=build.id) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="button">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        <br>
-    </div>
-        <button onclick="toggleVisibility()"> Upload New Build </button>
-    <div id="newBuild" {% if not invalid_build %}hidden{% endif %}>
-        <h2>Upload your new build here: </h2>
-        <form action="/uploadBuild" method="POST" id="uploadBuildForm">
-            <div id="gridContainer">
-                <label for="buildName">Name:</label>
-                <input type="text" id="buildName" name="buildName" placeholder="" required>
+    <!-- The "buildTable" is the container for all of a user's builds. -->
+    <div id="buildTable" {% if not builds %} hidden {% endif %}>
+    {% for build in builds %}
+        <!-- Each build is put in it's own styled "display container" -->
+        <div class="display-container">
+            <!-- Close Button (hidden until expanded) -->
+            <button class="close-card-btn">&times;</button>
 
-                <label for="description">Description:</label>
-                <input type="text" id="description" name="description" placeholder="" required>
-
-                <label for="instructions">Instructions:</label>
-                <input type="text" id="instructions" name="instructions" placeholder="" required>
-
-                <label for="link">Build Link:</label>
-                <input type="text" id="link" name="link" placeholder="" required>
-                <p>{{invalid_build}}</p>
-
+            <!-- Main Content Display (unexpanded) -->
+            <!--   Maybe the instructions aren't needed in this view either? -->
+            <!--   That could be replaced by a counter indicating the number of pending comments for a particular build? -->
+            <div class="display-container-main-content">
+                <h1>{{ build.name }}</h1>
+                <p><b>Description:</b> {{ build.description }}</p>
+                <p><b>Instructions:</b> {{ build.instructions }}</p>
+                <form action="{{ build.link }}" method="GET" style="display:inline;">
+                    <button type="submit" class="button">Build</button>
+                </form>
+                <form action="{{ url_for('dev', id=build.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="button">Delete</button>
+                </form>
             </div>
-            <br><br>
-            <button type="submit">Upload</button>
-        </form>
-    </div>
-    <hr>
-    <div {% if feedback == [] %} hidden {%endif %}>
-        <h2>Feedback to Approve</h2>
-        <table border = "1px solid black">
-            <thead>
-                <th> Date </th>
-                <th> Comment </th>
-                <th> Tester Name </th>
-                <th>  </th>
-            </thead>
-            <tbody>
-            {% for comment in feedback %}
-            {% if comment.accepted == False and comment.rejected == False%}
-            <tr>
-                <td> {{ comment.date }} </td>
-                <td> {{ comment.comment }} </td>
-                <td> {{ comment.user.fname}} {{ comment.user.lname }}</td>
-                <td>
-                    <form action="{{ url_for('acceptFeedback', id=comment.id) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="button"> Approve Feedback </button>
-                    </form>
-                    <form action="{{ url_for('rejectFeedback', id=comment.id) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="button"> Reject Feedback </button>
-                    </form>
-                </td>
-            </tr>
-            {% endif %}
-            {% endfor %}
-            </tbody>
 
-        </table>
-    </div>
-    <div {% if not rejected %} hidden {%endif %}>
-        <h2>Rejected Feedback</h2>
-        <table border = "1px solid black">
-            <thead>
-                <th> Date </th>
-                <th> Comment </th>
-                <th> Tester Name </th>
-                <th>  </th>
-            </thead>
-            <tbody>
-            {% for comment in feedback %}
-            {% if comment.rejected %}
-            <tr>
-                <td> {{ comment.date }} </td>
-                <td> {{ comment.comment }} </td>
-                <td> {{ comment.user.fname}} {{ comment.user.lname }}</td>
-                <td>
-                    <form action="{{ url_for('acceptFeedback', id=comment.id) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="button"> Approve Feedback </button>
-                    </form>
-                </td>
-            </tr>
-            {% endif %}
-            {% endfor %}
-            </tbody>
+            <!-- Feedback (hidden until card expands) -->
+            <div class="display-container-detailed-window">
+                <h2>Feedback</h2>
+                <div class="feedback-columns-grid">
+                    <!-- Feedback is currently not tied to a specific build when querying, so all feedback shows up in all builds. -->
 
-        </table>
-    </div>
-    <div {% if not accepted %} hidden {%endif %}>
-        <h2>Accepted Feedback</h2>
-        <table border = "1px solid black">
-            <thead>
-                <th> Date </th>
-                <th> Comment </th>
-                <th> Tester Name </th>
-                <th>  </th>
-            </thead>
-            <tbody>
-            {% for comment in feedback %}
-            {% if comment.accepted%}
-            <tr>
-                <td> {{ comment.date }} </td>
-                <td> {{ comment.comment }} </td>
-                <td> {{ comment.user.fname}} {{ comment.user.lname }}</td>
-                <td>
-                    <form action="{{ url_for('rejectFeedback', id=comment.id) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="button"> Reject Feedback </button>
-                    </form>
-                </td>
-            </tr>
-            {% endif %}
-            {% endfor %}
-            </tbody>
+                    <!-- Approval Needed -->
+                    <div class="feedback-column">
+                        <h3>Approval Needed</h3>
+                        {% for comment in build.feedbacks %}
+                            {% if comment.accepted == False and comment.rejected == False%}
+                            <div class="feedback-item-row">
+                                <div class="feedback-item-cell"> {{ comment.date }} </div>
+                                <div class="feedback-item-cell"> {{ comment.comment }} </div>
+                                <div class="feedback-item-cell"> {{ comment.user.fname}} {{ comment.user.lname }}</div>
+                                <div class="feedback-item-cell">
+                                    <form action="{{ url_for('acceptFeedback', id=comment.id) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="button"> Approve Feedback </button>
+                                    </form>
+                                    <form action="{{ url_for('rejectFeedback', id=comment.id) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="button"> Reject Feedback </button>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
 
-        </table>
-    </div>
+                    <!-- Comment Accepted -->
+                    <div class="feedback-column">
+                        <h3>Accepted</h3>
+                        {% for comment in build.feedbacks %}
+                            {% if comment.accepted%}
+                            <div class="feedback-item-row">
+                                <div class="feedback-item-cell"> {{ comment.date }} </div>
+                                <div class="feedback-item-cell"> {{ comment.comment }} </div>
+                                <div class="feedback-item-cell"> {{ comment.user.fname}} {{ comment.user.lname }}</div>
+                                <div class="feedback-item-cell">
+                                    <form action="{{ url_for('rejectFeedback', id=comment.id) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="button"> Reject Feedback </button>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <!-- Comment Rejected -->
+                    <div class="feedback-column">
+                        <h3>Rejected</h3>
+                        {% for comment in build.feedbacks %}
+                        {% if comment.rejected %}
+                        <div class="feedback-item-row">
+                            <div class="feedback-item-cell"> {{ comment.date }} </div>
+                            <div class="feedback-item-cell"> {{ comment.comment }} </div>
+                            <div class="feedback-item-cell"> {{ comment.user.fname}} {{ comment.user.lname }}</div>
+                            <div class="feedback-item-cell">
+                                <form action="{{ url_for('acceptFeedback', id=comment.id) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="button"> Approve Feedback </button>
+                                </form>
+                            </div>
+                        </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    <br>
+</div>
+
+<!-- Makes the "New Build" Form Visible -->
+<button onclick="toggleVisibility()"> Upload New Build </button>
+
+<div id="newBuild" {% if not invalid_build %}hidden{% endif %}>
+    <h2>Upload your new build here: </h2>
+    <form action="/uploadBuild" method="POST" id="uploadBuildForm">
+        <div id="gridContainer">
+            <label for="buildName">Name:</label>
+            <input type="text" id="buildName" name="buildName" placeholder="" required>
+
+            <label for="description">Description:</label>
+            <input type="text" id="description" name="description" placeholder="" required>
+
+            <label for="instructions">Instructions:</label>
+            <input type="text" id="instructions" name="instructions" placeholder="" required>
+
+            <label for="link">Build Link:</label>
+            <input type="text" id="link" name="link" placeholder="" required>
+            <p>{{invalid_build}}</p>
+
+        </div>
+        <br><br>
+        <button type="submit">Upload</button>
+    </form>
+</div>
 </center>
+
 <script>
         function toggleVisibility() {
             var element = document.getElementById("newBuild");
             // Toggles the 'hidden' class on click
             element.toggleAttribute("hidden");
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+        const table = document.getElementById('buildTable');
+        const overlay = document.getElementById('cardOverlay');
+
+        if (!table) return;
+
+        table.addEventListener('click', (e) => {
+            const card = e.target.closest('.display-container');
+            if (!card) return;
+
+            const isCloseButton = e.target.classList.contains('close-card-btn');
+            const isFormAction = e.target.closest('form') || e.target.closest('button');
+
+            // Close the window if the close button is clicked.
+            if (isCloseButton) {
+                closeActiveCard();
+                return;
+            }
+
+            // Check if the window is already open.
+            if (card.classList.contains('expanded')) {
+                return;
+            }
+
+            // Open the window.
+            if (!isFormAction) {
+                card.classList.add('expanded');
+                document.body.classList.add('card-open');
+            }
+        });
+
+        overlay.addEventListener('click', closeActiveCard);
+
+        // Un-expand the card.
+        function closeActiveCard() {
+            const expandedCard = document.querySelector('.display-container.expanded');
+            if (expandedCard) {
+                expandedCard.classList.remove('expanded');
+            }
+            document.body.classList.remove('card-open');
+        }
+        });
 </script>
 {% endblock %}
