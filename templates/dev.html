@@ -39,11 +39,11 @@
                 <h2>Feedback</h2>
                 <div class="feedback-columns-grid">
                     <!-- Feedback is currently not tied to a specific build when querying, so all feedback shows up in all builds. -->
-                    
+
                     <!-- Approval Needed -->
                     <div class="feedback-column">
                         <h3>Approval Needed</h3>
-                        {% for comment in feedback %}
+                        {% for comment in build.feedbacks %}
                             {% if comment.accepted == False and comment.rejected == False%}
                             <div class="feedback-item-row">
                                 <div class="feedback-item-cell"> {{ comment.date }} </div>
@@ -65,7 +65,7 @@
                     <!-- Comment Accepted -->
                     <div class="feedback-column">
                         <h3>Accepted</h3>
-                        {% for comment in feedback %}
+                        {% for comment in build.feedbacks %}
                             {% if comment.accepted%}
                             <div class="feedback-item-row">
                                 <div class="feedback-item-cell"> {{ comment.date }} </div>
@@ -84,7 +84,7 @@
                     <!-- Comment Rejected -->
                     <div class="feedback-column">
                         <h3>Rejected</h3>
-                        {% for comment in feedback %}
+                        {% for comment in build.feedbacks %}
                         {% if comment.rejected %}
                         <div class="feedback-item-row">
                             <div class="feedback-item-cell"> {{ comment.date }} </div>
@@ -133,7 +133,7 @@
     </form>
 </div>
 </center>
-    
+
 <script>
         function toggleVisibility() {
             var element = document.getElementById("newBuild");
