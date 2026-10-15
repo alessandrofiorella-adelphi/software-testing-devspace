@@ -17,54 +17,94 @@
     <a href="{{ url_for('home') }}">Home</a>
     <a href="{{ url_for('dashboard') }}">Dashboard</a>
 </div>
+
 <center>
-    <div id="buildTable">
-        <table border="1px solid black">
-            <thead>
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Instructions</th>
-                <th>Link</th>
-                <th>Developer Name </th>
-                <th>Feedback</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for build in builds %}
-            <tr>
-                <td>{{ build.name }}</td>
-                <td>{{ build.description}}</td>
-                <td>{{ build.instructions }}</td>
-                <td>
-                        <a href="{{ build.link }}" target="_blank"
-                        onclick="return confirm('You are being redirected to an external website to access this build. Please exercise caution when downloading any programs/executables');">
-                        {{ build.link }}
-                        </a>
-                </td>
-                <td> {{ build.user.fname }} {{build.user.lname}}</td>
-                {#
-                {% if build.feedbacks == []%}
-                <td>
+    <!-- The "buildTable" is the container for all of a user's builds. -->
+    <div id="buildTable" {% if not builds %} hidden {% endif %}>
+    {% for build in builds %}
+        <!-- Each build is put in it's own styled "display container" -->
+        <div class="display-container">
+            <!-- Close Button (hidden until expanded) -->
+            <button class="close-card-btn">&times;</button>
 
-                </td>
-                {% else %} {% endif %}#}
-                <div>
-                    <td id="comments">
-                        <table id="commentsTable">
-                    {% for feedback in build.feedbacks %}
-                        {% if feedback.accepted %} <tr id="comment" > <td> {{ feedback.comment }} </td></tr>{% endif %}
-                    {% endfor %}
-                        </table>
-                        <form action="{{ url_for('comment', id=build.id) }}" method="POST" style="display:inline;">
-                            <button type="submit" class="button">Comment</button>
-                        </form>
-                    </td>
-                </div>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+            <!-- Main Content Display (unexpanded) -->
+            <!--   Maybe the instructions aren't needed in this view either? -->
+            <!--   That could be replaced by a counter indicating the number of pending comments for a particular build? -->
+            <div class="display-container-main-content">
+                <h1>{{ build.name }}</h1>
+                <p><b>Description:</b> {{ build.description }}</p>
+                <p><b>Instructions:</b> {{ build.instructions }}</p>
+                <form action="{{ build.link }}" method="GET" style="display:inline;">
+                    <button type="submit" class="button">Build</button>
+                </form>
+                <form action="{{ url_for('dev', id=build.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="button">Delete</button>
+                </form>
+            </div>
 
+            <!-- Feedback (hidden until card expands) -->
+            <div class="display-container-detailed-window">
+                <h2>Comments</h2>
+                <div class="feedback-column">
+                        {% for comment in build.feedbacks %}
+                            {% if comment.accepted%}
+                            <div class="feedback-item-row">
+                                <div class="feedback-item-cell"> {{ comment.date }} </div>
+                                <div class="feedback-item-cell"> {{ comment.comment }} </div>
+                                <div class="feedback-item-cell"> {{ comment.user.fname}} {{ comment.user.lname }}</div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+            </div>
+        </div>
+    {% endfor %}
+    <br>
+</div>
 </center>
+
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+        const table = document.getElementById('buildTable');
+        const overlay = document.getElementById('cardOverlay');
+
+        if (!table) return;
+
+        table.addEventListener('click', (e) => {
+            const card = e.target.closest('.display-container');
+            if (!card) return;
+
+            const isCloseButton = e.target.classList.contains('close-card-btn');
+            const isFormAction = e.target.closest('form') || e.target.closest('button');
+
+            // Close the window if the close button is clicked.
+            if (isCloseButton) {
+                closeActiveCard();
+                return;
+            }
+
+            // Check if the window is already open.
+            if (card.classList.contains('expanded')) {
+                return;
+            }
+
+            // Open the window.
+            if (!isFormAction) {
+                card.classList.add('expanded');
+                document.body.classList.add('card-open');
+            }
+        });
+
+        overlay.addEventListener('click', closeActiveCard);
+
+        // Un-expand the card.
+        function closeActiveCard() {
+            const expandedCard = document.querySelector('.display-container.expanded');
+            if (expandedCard) {
+                expandedCard.classList.remove('expanded');
+            }
+            document.body.classList.remove('card-open');
+        }
+        });
+</script>
 {% endblock %}
