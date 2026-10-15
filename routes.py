@@ -63,7 +63,15 @@ def register_routes(app, db, bcrypt):
     @app.route('/tester')
     @login_required
     def tester():
-        return render_template('tester.html'), 200
+        builds = Build.query.all()
+        allFeedback = []
+        allBuilds = []
+        for build in builds:
+            feedback = Feedback.query.filter_by(testerId=current_user.uid, buildId=build.id).all()
+            if feedback:
+                allBuilds.append(build)
+                allFeedback += feedback
+        return render_template('tester.html', builds = allBuilds, feedback = allFeedback), 200
 
     @app.route('/loggingIn', methods=['GET', 'POST'])
     def loggingIn():
@@ -147,3 +155,22 @@ def register_routes(app, db, bcrypt):
     @app.route('/signup', methods=['GET'])
     def signup():
         return render_template('signup.html')
+
+    @app.route('/deleteBuild/<int:id>', methods=['GET', 'POST'])
+    def deleteBuild(id):
+        if request.method == 'GET':
+            return redirect(url_for('dev'))
+        elif request.method == 'POST':
+            build = Build.query.filter_by(id=id).first()
+            feedbacks = Feedback.query.filter_by(buildId=id).all()
+            for feedback in feedbacks:
+                db.session.delete(feedback)
+            db.session.delete(build)
+            print("Successfully Deleted Build?" + id)
+            try:
+                db.session.commit()
+                print("Successfully Deleted Build " + id)
+            except Exception:
+                db.session.rollback()
+                return redirect(url_for('deleteBuild', id=id))
+            return redirect(url_for('dev'))
