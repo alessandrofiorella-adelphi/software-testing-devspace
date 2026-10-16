@@ -2,7 +2,7 @@ import pytest, datetime
 from flask import template_rendered
 # 1. Import your factory function from app.py
 from app import create_app, db
-from models import User, Build, Feedback
+from models import User, Build, Feedback, Response
 
 
 @pytest.fixture
@@ -293,9 +293,65 @@ def test_signup_page (client, captured_templates):
     template, context = captured_templates[0]
     assert template.name == "signup.html"
 
-#def test_account_creation (client, captured_templates):
+def test_account_creation (client, captured_templates):
+    client.post('/createAccount', data={
+        'fname': 'David',
+        'lname': 'Chays',
+        'username' : 'davidchays@mail.adelphi.edu',
+        'password' : 'husky987'
+    })
 
+    response = client.post('/loggingIn', data={
+        'username': 'davidchays@mail.adelphi.edu',
+        'password': 'husky987'
+    }, follow_redirects=True)
 
+    assert response.status_code == 200
+
+    assert len(captured_templates) == 1
+
+    template, context = captured_templates[0]
+    assert template.name == "tester.html"
+
+def test_respond_to_feedback (client, captured_templates):
+    client.post('/loggingIn', data={
+        'username': 'timothykravets@mail.adelphi.edu',
+        'password': 'doggie321'
+    })
+
+    client.post('/uploadBuild', data={
+        'buildName': 'MySpace',
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace'
+    })
+
+    client.post('/giveFeedback/1', data={
+        'testTime': '2026-09-30',
+        'comment': 'Lorem ipsum dolor sit amet',
+    })
+
+    response = client.post('respond/1', data = {
+        'responseTime': '2026-10-01',
+        'comment': 'Lorem ipsum dolor sit amet',
+    }, follow_redirects=True)
+
+    assert response.status_code == 200
+
+    assert len(captured_templates) == 1
+
+    template, context = captured_templates[0]
+    assert template.name == "tester.html" or template.name == "dev.html"
+
+    response = db.session.execute(
+        db.select(Response).filter_by(comment='Lorem ipsum dolor sit amet')
+    ).scalar_one_or_none()
+
+    assert response is not None
+    assert response.date == datetime.date(2026, 10, 1)
+    assert response.comment == 'Lorem ipsum dolor sit amet'
+    assert response.feedbackId == 1
+    assert response.userId == 3
 
 """
 Future Tests:

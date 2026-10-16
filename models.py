@@ -10,13 +10,14 @@ class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
     uid = db.Column(db.Integer, primary_key=True)
-    fname = db.Column(db.String(80), unique=True, nullable=False)
-    lname = db.Column(db.String(80), unique=True, nullable=False)
+    fname = db.Column(db.String(80), nullable=False)
+    lname = db.Column(db.String(80), nullable=False)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     is_dev = db.Column(db.Boolean, default=False)
     builds = db.relationship('Build', backref='user', lazy=True)
     feedbacks = db.relationship('Feedback', backref='user', lazy=True)
+    responses = db.relationship('Response', backref='user', lazy=True)
 
     def __init__(self, fname, lname, username, password_hash, is_dev=False):
         self.fname = fname
@@ -59,9 +60,25 @@ class Feedback(db.Model, UserMixin):
     rejected = db.Column(db.Boolean, default=False, nullable=False)
     buildId = db.Column(db.Integer, db.ForeignKey('builds.id'), nullable=False)
     testerId = db.Column(db.Integer, db.ForeignKey('users.uid'), nullable=False)
+    responses = db.relationship('Response', backref='feedback', lazy=True)
 
     def __init__(self, date, comment, buildId, testerId):
         self.date = date
         self.comment = comment
         self.buildId = buildId
         self.testerId = testerId
+
+class Response(db.Model, UserMixin):
+    __tablename__ = 'responses'
+
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, default=datetime.UTC, nullable=False)
+    comment = db.Column(db.Text, unique=False, nullable=False)
+    feedbackId = db.Column(db.Integer, db.ForeignKey('feedbacks.id'), nullable=False)
+    userId = db.Column(db.Integer, db.ForeignKey('users.uid'), nullable=False)
+
+    def __init__(self, date, comment, feedbackId, userId):
+        self.date = date
+        self.comment = comment
+        self.feedbackId = feedbackId
+        self.userId = userId

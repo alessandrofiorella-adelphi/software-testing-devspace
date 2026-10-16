@@ -1,7 +1,7 @@
 from flask import request, render_template, flash, redirect, url_for
 from flask_login import login_user, logout_user, login_required, current_user
 
-from models import User, Build, Feedback
+from models import User, Build, Feedback, Response
 
 import datetime
 
@@ -157,6 +157,7 @@ def register_routes(app, db, bcrypt):
         return render_template('signup.html')
 
     @app.route('/deleteBuild/<int:id>', methods=['GET', 'POST'])
+    @login_required
     def deleteBuild(id):
         if request.method == 'GET':
             return redirect(url_for('dev'))
@@ -174,3 +175,49 @@ def register_routes(app, db, bcrypt):
                 db.session.rollback()
                 return redirect(url_for('deleteBuild', id=id))
             return redirect(url_for('dev'))
+
+    @app.route('/createAccount', methods=['GET', 'POST'])
+    def createAccount():
+        if request.method == 'GET':
+            return render_template('signup.html', wrong_password = "Invalid Account Creation. Username may already exist"), 200
+        elif request.method == 'POST':
+            fname = request.form.get('fname')
+            lname = request.form.get('lname')
+            username = request.form.get('username')
+            password = request.form.get('password')
+
+            user = User(fname, lname, username, bcrypt.generate_password_hash(password).decode('utf-8'), False)
+            db.session.add(user)
+            try:
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print("Account creation error:", e)
+                return redirect(url_for('createAccount'))
+
+            return redirect(url_for('login'))
+
+    @app.route('/respond/<int:id>', methods=['GET', 'POST'])
+    @login_required
+    def respond(id):
+        if request.method == 'GET':
+            if current_user.is_dev:
+                return redirect(url_for('dev'))
+            else:
+                return redirect(url_for('tester'))
+        elif request.method == 'POST':
+            responseTime = datetime.date.fromisoformat(request.form.get('responseTime'))
+            comment = request.form.get('comment')
+
+            response = Response(responseTime, comment, id, current_user.uid)
+            db.session.add(response)
+            try:
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                return redirect(url_for('respond', id=id))
+
+            if current_user.is_dev:
+                return redirect(url_for('dev'))
+            else:
+                return redirect(url_for('tester'))
