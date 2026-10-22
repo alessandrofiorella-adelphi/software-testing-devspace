@@ -331,7 +331,7 @@ def test_respond_to_feedback (client, captured_templates):
         'comment': 'Lorem ipsum dolor sit amet',
     })
 
-    response = client.post('respond/1', data = {
+    response = client.post('respond/1', data={
         'responseTime': '2026-10-01',
         'comment': 'Lorem ipsum dolor sit amet',
     }, follow_redirects=True)
@@ -352,6 +352,18 @@ def test_respond_to_feedback (client, captured_templates):
     assert response.comment == 'Lorem ipsum dolor sit amet'
     assert response.feedbackId == 1
     assert response.userId == 3
+
+def test_account_verification_edu(client, captured_templates):
+    response = client.post('/verify-account', data={
+        'email': 'kimothy@mail.adelphi.edu',
+    })
+    assert response.verified == True;
+
+def test_account_verification_failure(client, captured_templates):
+    response = client.post('/verify-account', data={
+        'email': 'kimothy@mail.adelphi.com',
+    })
+    assert response.verified == False;
 
 """
 Future Tests:
