@@ -1,3 +1,5 @@
+from os.path import join
+
 from flask import request, render_template, flash, redirect, url_for
 from flask_login import login_user, logout_user, login_required, current_user
 
@@ -63,15 +65,21 @@ def register_routes(app, db, bcrypt):
     @app.route('/tester')
     @login_required
     def tester():
-        builds = Build.query.all()
+        builds_with_tester_feedback = (
+            Build.query
+            .join(Feedback)
+            .filter(Feedback.testerId == current_user.uid)
+            .options(db.joinedload(Build.feedbacks))
+            .all()
+        )
         allFeedback = []
-        allBuilds = []
-        for build in builds:
-            feedback = Feedback.query.filter_by(testerId=current_user.uid, buildId=build.id).all()
-            if feedback:
-                allBuilds.append(build)
-                allFeedback += feedback
-        return render_template('tester.html', builds = allBuilds, feedback = allFeedback), 200
+        for build in builds_with_tester_feedback:
+            for f in build.feedbacks:
+                if f.testerId == current_user.uid:
+                    f.build = build
+                    allFeedback.append(f)
+
+        return render_template('tester.html', feedbacks=allFeedback), 200
 
     @app.route('/loggingIn', methods=['GET', 'POST'])
     def loggingIn():

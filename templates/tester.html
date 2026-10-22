@@ -10,7 +10,97 @@
 <div class="navbar">
     <a href="{{ url_for('home') }}">Home</a>
 </div>
-    <center><h1> This will be tester dashboard page</h1></center>
-</div>
 
+<center>
+    <!-- Testers should be able to see all comments they've left. -->
+    <div id="buildTable" {% if not feedbacks %} hidden {% endif %}>
+
+    {% for comment in feedbacks %}
+        <!-- Each comment is put in its own styled "display container" -->
+        <div class="display-container">
+            <!-- Close Button (hidden until expanded) -->
+            <button class="close-card-btn">&times;</button>
+
+            <!-- Main Content Display (unexpanded) -->
+            <div class="display-container-main-content">
+                <h2>{{ comment.comment }}</h2>
+                <p><b>Date Tested: </b> {{ comment.date }}</p>
+                <p><b>Project: </b> {{ comment.build.name }} </p>
+            </div>
+
+            <!-- Feedback (hidden until card expands) -->
+            <div class="display-container-detailed-window">
+                <div class="display-container-main-content">
+                    <h1>{{ comment.build.name }}</h1>
+                    <p><b>Description:</b> {{ comment.build.description }}</p>
+                    <p><b>Instructions:</b> {{ comment.build.instructions }}</p>
+                    <form action="{{ comment.build.link }}" method="GET" style="display:inline;">
+                        <button type="submit" class="button">Build</button>
+                    </form>
+                </div>
+
+                <h2>Comments From All Users On This Project</h2>
+                <div class="feedback-column">
+                    {% for allComment in comment.build.feedbacks %}
+                        {% if allComment.accepted %}
+                            <div class="feedback-item-row">
+                                <div class="feedback-item-cell"> {{ allComment.date }} </div>
+                                <div class="feedback-item-cell"> {{ allComment.comment }} </div>
+                                <div class="feedback-item-cell"> {{ allComment.user.fname }} {{ allComment.user.lname }}</div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    {% endfor %}
+
+    <br>
+    </div>
+</center>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+        const table = document.getElementById('buildTable');
+        const overlay = document.getElementById('cardOverlay');
+
+        if (!table) return;
+
+        table.addEventListener('click', (e) => {
+            const card = e.target.closest('.display-container');
+            if (!card) return;
+
+            const isCloseButton = e.target.classList.contains('close-card-btn');
+            const isFormAction = e.target.closest('form') || e.target.closest('button');
+
+            // Close the window if the close button is clicked.
+            if (isCloseButton) {
+                closeActiveCard();
+                return;
+            }
+
+            // Check if the window is already open.
+            if (card.classList.contains('expanded')) {
+                return;
+            }
+
+            // Open the window.
+            if (!isFormAction) {
+                card.classList.add('expanded');
+                document.body.classList.add('card-open');
+            }
+        });
+
+        overlay.addEventListener('click', closeActiveCard);
+
+        // Un-expand the card.
+        function closeActiveCard() {
+            const expandedCard = document.querySelector('.display-container.expanded');
+            if (expandedCard) {
+                expandedCard.classList.remove('expanded');
+            }
+            document.body.classList.remove('card-open');
+        }
+        });
+</script>
 {% endblock %}

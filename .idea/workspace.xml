@@ -4,13 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9433fc61-b40b-4f34-bdd8-5bb36a59d90e" name="Changes" comment="Unversioned files?">
+    <list default="true" id="9433fc61-b40b-4f34-bdd8-5bb36a59d90e" name="Changes" comment="Updated the tester view to display comments first, then expand to the build.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/tester.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/tester.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tester.html" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -126,7 +121,23 @@
       <option name="project" value="LOCAL" />
       <updated>1791503757320</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Test_App merge.">
+      <option name="closed" value="true" />
+      <created>1792703703305</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1792703703305</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Updated the tester view to display comments first, then expand to the build.">
+      <option name="closed" value="true" />
+      <created>1792704514393</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1792704514393</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -146,6 +157,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Created this new branch to fiddle with the structure and design of the project without impacting main. Started replacing the tables with divs to use more of a flexbox-based design." />
     <MESSAGE value="Unversioned files?" />
-    <option name="LAST_COMMIT_MESSAGE" value="Unversioned files?" />
+    <MESSAGE value="Test_App merge." />
+    <MESSAGE value="Updated the tester view to display comments first, then expand to the build." />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated the tester view to display comments first, then expand to the build." />
   </component>
 </project>
