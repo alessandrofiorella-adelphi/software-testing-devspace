@@ -1,4 +1,4 @@
-from os.path import join
+import os
 
 from flask import request, render_template, flash, redirect, url_for
 from flask_login import login_user, logout_user, login_required, current_user
@@ -14,6 +14,21 @@ def register_routes(app, db, bcrypt):
     def home():
         builds = Build.query.all()
         return render_template('index.html', builds = builds), 200
+
+    @app.route('/personal')
+    def personal():
+        builds = Build.query.filter_by(tag="Personal").all()
+        return render_template('index.html', builds=builds), 200
+
+    @app.route('/professional')
+    def professional():
+        builds = Build.query.filter_by(tag="Professional").all()
+        return render_template('index.html', builds=builds), 200
+
+    @app.route('/educational')
+    def educational():
+        builds = Build.query.filter_by(tag="Educational").all()
+        return render_template('index.html', builds=builds), 200
 
     @app.route('/login')
     def login():
@@ -45,41 +60,40 @@ def register_routes(app, db, bcrypt):
     @login_required
     def uploadBuild():
         if request.method == 'GET':
-            return render_template('dev.html', invalid_build = "Invalid build information!"), 200
+            return render_template('dev.html', invalid_build = "Invalid Build Information!"), 200
         elif request.method == 'POST':
             name = request.form.get('buildName')
             description = request.form.get('description')
             instructions = request.form.get('instructions')
             link = request.form.get('link')
+            tag = request.form.get('tag').title()
 
-            build = Build(name, description, instructions, link, current_user.uid)
-            db.session.add(build)
-            try:
-                db.session.commit()
-            except Exception:
-                db.session.rollback()
-                return redirect(url_for('uploadBuild'))
+            if tag == "Personal" or tag == "Professional" or tag == "Educational":
+                build = Build(name, description, instructions, link, tag, current_user.uid)
+                db.session.add(build)
+                try:
+                    db.session.commit()
+                except Exception:
+                    db.session.rollback()
+                    return redirect(url_for('uploadBuild'))
+            else:
+                print("Invalid tag!")
+                return redirect(url_for('dev'))
 
             return redirect(url_for('dev'))
 
     @app.route('/tester')
     @login_required
     def tester():
-        builds_with_tester_feedback = (
-            Build.query
-            .join(Feedback)
-            .filter(Feedback.testerId == current_user.uid)
-            .options(db.joinedload(Build.feedbacks))
-            .all()
-        )
+        builds = Build.query.all()
         allFeedback = []
-        for build in builds_with_tester_feedback:
-            for f in build.feedbacks:
-                if f.testerId == current_user.uid:
-                    f.build = build
-                    allFeedback.append(f)
-
-        return render_template('tester.html', feedbacks=allFeedback), 200
+        allBuilds = []
+        for build in builds:
+            feedback = Feedback.query.filter_by(testerId=current_user.uid, buildId=build.id).all()
+            if feedback:
+                allBuilds.append(build)
+                allFeedback += feedback
+        return render_template('tester.html', builds = allBuilds, feedback = allFeedback), 200
 
     @app.route('/loggingIn', methods=['GET', 'POST'])
     def loggingIn():
@@ -115,9 +129,6 @@ def register_routes(app, db, bcrypt):
         elif request.method == 'POST':
             testTime = datetime.date.fromisoformat(request.form.get('testTime'))
             comment = request.form.get('comment')
-
-
-
             feedback = Feedback(testTime, comment, id, current_user.uid)
             db.session.add(feedback)
             try:
@@ -175,10 +186,9 @@ def register_routes(app, db, bcrypt):
             for feedback in feedbacks:
                 db.session.delete(feedback)
             db.session.delete(build)
-            print("Successfully Deleted Build?" + id)
             try:
                 db.session.commit()
-                print("Successfully Deleted Build " + id)
+                print("Successfully Deleted Build " + str(id))
             except Exception:
                 db.session.rollback()
                 return redirect(url_for('deleteBuild', id=id))
@@ -229,3 +239,52 @@ def register_routes(app, db, bcrypt):
                 return redirect(url_for('dev'))
             else:
                 return redirect(url_for('tester'))
+
+    @app.route('/verify', methods=['GET', 'POST'])
+    @login_required
+    def verify():
+        email = current_user.username
+        if (email[-3:] == "edu"):
+            current_user.verified = True
+        else:
+            print("Not Verified")
+
+        if current_user.is_dev:
+            return redirect(url_for('dev'))
+        else:
+            return redirect(url_for('tester'))
+
+    @app.route('/crash', methods=['GET', 'POST'])
+    def crash():
+        raise SystemError("BOOOOOO!!!!")
+
+    @app.route('/editBuild/<int:id>', methods=['GET', 'POST'])
+    @login_required
+    def editBuild(id):
+        if request.method == 'GET':
+            return redirect(url_for('dev'))
+        elif request.method == 'POST':
+            build = Build.query.filter_by(id=id).first()
+            name = request.form.get('buildName')
+            desc = request.form.get('description')
+            instructions = request.form.get('instructions')
+            link = request.form.get('link')
+            tag = request.form.get('tag').title()
+
+            build.name = name
+            build.description = desc
+            build.instructions = instructions
+            build.link = link
+            if tag == "Personal" or tag == "Professional" or tag == "Educational":
+                build.tag = tag
+            else:
+                print("Invalid tag!")
+                return redirect(url_for('dev'))
+            
+            try:
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                return redirect(url_for('editBuild'))
+
+            return redirect(url_for('dev'))

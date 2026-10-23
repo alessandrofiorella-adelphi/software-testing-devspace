@@ -15,16 +15,18 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     is_dev = db.Column(db.Boolean, default=False)
+    verified = db.Column(db.Boolean, default=False)
     builds = db.relationship('Build', backref='user', lazy=True)
     feedbacks = db.relationship('Feedback', backref='user', lazy=True)
     responses = db.relationship('Response', backref='user', lazy=True)
 
-    def __init__(self, fname, lname, username, password_hash, is_dev=False):
+    def __init__(self, fname, lname, username, password_hash, is_dev=False, verified = False):
         self.fname = fname
         self.lname = lname
         self.username = username
         self.password_hash = password_hash
         self.is_dev = is_dev
+        self.verified = verified
 
     def __repr__(self):
         return f'User with username: {self.username}, developer: {self.is_dev}'
@@ -40,14 +42,16 @@ class Build(db.Model, UserMixin):
     description = db.Column(db.Text, unique=False, nullable=False)
     instructions = db.Column(db.Text, unique=False, nullable=False)
     link = db.Column(db.Text, unique=False, nullable=False)
+    tag = db.Column(db.String(80), unique=False, nullable=False)
     developerID = db.Column(db.Integer, db.ForeignKey('users.uid'), nullable=False)
     feedbacks = db.relationship('Feedback', backref='build', lazy=True)
 
-    def __init__(self, name, desc, instructions, link, devID):
+    def __init__(self, name, desc, instructions, link, tag, devID):
         self.name = name
         self.description = desc
         self.instructions = instructions
         self.link = link
+        self.tag = tag
         self.developerID = devID
 
 class Feedback(db.Model, UserMixin):

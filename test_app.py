@@ -3,6 +3,7 @@ from flask import template_rendered
 # 1. Import your factory function from app.py
 from app import create_app, db
 from models import User, Build, Feedback, Response
+import ctypes
 
 
 @pytest.fixture
@@ -130,7 +131,8 @@ def test_good_build_creation(client, captured_templates):
         'buildName': 'MySpace',
         'description': 'Lorem ipsum dolor sit amet',
         'instructions': 'Lorem ipsum dolor sit amet',
-        'link': 'https://en.wikipedia.org/wiki/Myspace'
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Personal'
     }, follow_redirects=True)
 
     assert response.status_code == 200
@@ -148,6 +150,7 @@ def test_good_build_creation(client, captured_templates):
     assert build.description == 'Lorem ipsum dolor sit amet'
     assert build.instructions == 'Lorem ipsum dolor sit amet'
     assert build.link == 'https://en.wikipedia.org/wiki/Myspace'
+    assert build.tag == 'Personal'
 
 def test_bad_build_creation(client, captured_templates):
     client.post('/loggingIn', data={
@@ -159,7 +162,8 @@ def test_bad_build_creation(client, captured_templates):
         'buildName': "MySpace",
         'description': None,
         'instructions': 'Lorem ipsum dolor sit amet',
-        'link': 'https://en.wikipedia.org/wiki/Myspace'
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag' : 'Personal'
     }, follow_redirects=True)
 
     assert response.status_code == 200
@@ -186,7 +190,8 @@ def test_build_link_warning (client, captured_templates):
         'buildName': 'MySpace',
         'description': 'Lorem ipsum dolor sit amet',
         'instructions': 'Lorem ipsum dolor sit amet',
-        'link': 'https://en.wikipedia.org/wiki/Myspace'
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Personal'
     })
 
     response = client.get('/')
@@ -213,7 +218,8 @@ def test_comment_feedback (client, captured_templates):
         'buildName': 'MySpace',
         'description': 'Lorem ipsum dolor sit amet',
         'instructions': 'Lorem ipsum dolor sit amet',
-        'link': 'https://en.wikipedia.org/wiki/Myspace'
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Personal'
     })
 
     response = client.post('/giveFeedback/1', data={
@@ -248,7 +254,8 @@ def test_accept_comment (client, captured_templates):
         'buildName': 'MySpace',
         'description': 'Lorem ipsum dolor sit amet',
         'instructions': 'Lorem ipsum dolor sit amet',
-        'link': 'https://en.wikipedia.org/wiki/Myspace'
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Personal'
     })
 
     client.post('/giveFeedback/1', data={
@@ -323,7 +330,8 @@ def test_respond_to_feedback (client, captured_templates):
         'buildName': 'MySpace',
         'description': 'Lorem ipsum dolor sit amet',
         'instructions': 'Lorem ipsum dolor sit amet',
-        'link': 'https://en.wikipedia.org/wiki/Myspace'
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Personal'
     })
 
     client.post('/giveFeedback/1', data={
@@ -331,7 +339,7 @@ def test_respond_to_feedback (client, captured_templates):
         'comment': 'Lorem ipsum dolor sit amet',
     })
 
-    response = client.post('respond/1', data={
+    response = client.post('respond/1', data = {
         'responseTime': '2026-10-01',
         'comment': 'Lorem ipsum dolor sit amet',
     }, follow_redirects=True)
@@ -353,37 +361,146 @@ def test_respond_to_feedback (client, captured_templates):
     assert response.feedbackId == 1
     assert response.userId == 3
 
-def test_account_verification_edu(client, captured_templates):
-    response = client.post('/verify-account', data={
-        'email': 'kimothy@mail.adelphi.edu',
+def test_verify_account(client, captured_templates):
+    client.post('/loggingIn', data={
+        'username': 'timothykravets@mail.adelphi.edu',
+        'password': 'doggie321'
     })
-    assert response.verified == True;
 
-def test_account_verification_failure(client, captured_templates):
-    response = client.post('/verify-account', data={
-        'email': 'kimothy@mail.adelphi.com',
-    })
-    assert response.verified == False;
+    user = db.session.execute(
+        db.select(User).filter_by(username='timothykravets@mail.adelphi.edu')
+    ).scalar_one_or_none()
 
-"""
-Future Tests:
-What if goes to wrong route? Backup route?
-What if app crashes? Graceful close?
+    assert user.verified == False
 
-def test_user_access(client, captured_templates):
-    response = client.post('/loggingIn', data={
-        'username': 'admin',
-        'password': 'badadminpassword'
-    }, follow_redirects=True)
+    response = client.get('/verify', follow_redirects=True)
 
     assert response.status_code == 200
 
     assert len(captured_templates) == 1
 
     template, context = captured_templates[0]
-    assert template.name == "user.html" 
 
-def test_logout_fail(client, captured_templates):
-    response = client.get("/logout")
+    assert template.name == "dev.html" or template.name == "tester.html"
+
+    assert user.verified == True
+
+def test_creation_and_bad_verification(client, captured_templates):
+    client.post('/createAccount', data={
+        'fname': 'Timothy',
+        'lname': 'Kravets',
+        'username': 'timkravets@gmail.com',
+        'password': 'luna18'
+    })
+
+    response = client.post('/loggingIn', data={
+        'username': 'timkravets@gmail.com',
+        'password': 'luna18'
+    }, follow_redirects=True)
+
+    user = db.session.execute(
+        db.select(User).filter_by(username='timkravets@gmail.com')
+    ).scalar_one_or_none()
+
+    assert user.verified == False
+
     assert response.status_code == 200
-"""
+
+    assert len(captured_templates) == 1
+
+    template, context = captured_templates[0]
+    assert template.name == "tester.html"
+
+    response = client.get('/verify', follow_redirects=True)
+
+    assert response.status_code == 200
+
+    assert len(captured_templates) == 2
+
+    template, context = captured_templates[1]
+
+    assert template.name == "dev.html" or template.name == "tester.html"
+
+    assert user.verified == False
+
+def test_crash(client, captured_templates):
+    client.application.config['TESTING'] = False
+    response = client.get('/crash')
+
+    assert response.status_code == 500
+
+    assert len(captured_templates) == 0
+
+def test_good_tag(client, captured_templates):
+    client.post('/uploadBuild', data={
+        'buildName': 'MySpace',
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Personal'
+    })
+
+    client.post('/uploadBuild', data={
+        'buildName': 'MySpace',
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Professional'
+    })
+
+    client.post('/uploadBuild', data={
+        'buildName': 'MySpace',
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Educational'
+    })
+
+    client.post('/uploadBuild', data={
+        'buildName': 'MySpace',
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Personal'
+    })
+
+    builds = db.session.execute(db.select(Build)).scalars().all()
+    for build in builds:
+        assert build.tag == "Educational" or build.tag == "Personal" or build.tag == "Professional"
+
+def test_good_tag(client, captured_templates):
+    client.post('/uploadBuild', data={
+        'buildName': 'MySpace',
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Personal'
+    })
+
+    client.post('/uploadBuild', data={
+        'buildName': 'MySpace',
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Professional'
+    })
+
+    client.post('/uploadBuild', data={
+        'buildName': 'MySpace',
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Educational'
+    })
+
+    client.post('/uploadBuild', data={
+        'buildName': 'MySpace',
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'All of them'
+    })
+
+    builds = db.session.execute(db.select(Build)).scalars().all()
+    for build in builds:
+        assert build.tag == "Educational" or build.tag == "Personal" or build.tag == "Professional"
