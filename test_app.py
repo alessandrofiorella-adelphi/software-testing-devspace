@@ -504,3 +504,45 @@ def test_good_tag(client, captured_templates):
     builds = db.session.execute(db.select(Build)).scalars().all()
     for build in builds:
         assert build.tag == "Educational" or build.tag == "Personal" or build.tag == "Professional"
+
+def test_edit_build_success(client, captured_templates):
+    client.post('/loggingIn', data={
+        'username': 'alessandrofiorella@mail.adelphi.edu',
+        'password': 'kitten654'
+    }, follow_redirects=True)
+
+    client.post('/uploadBuild', data={
+        'buildName': 'MySpace',
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://wikipedia.org',
+        'tag': 'Personal'
+    }, follow_redirects=True)
+
+    captured_templates.clear()
+
+    response = client.post('/editBuild/1', data={
+        'buildName': 'MySpace Evolved',
+        'description': 'Updated project description details text',
+        'instructions': 'Updated build testing execution steps guide',
+        'link': 'https://wikipedia.org_modified',
+        'tag': 'Professional'
+    }, follow_redirects=True)
+
+    assert response.status_code == 200
+
+    assert len(captured_templates) == 1
+
+    template, context = captured_templates[0]
+    assert template.name == "dev.html"
+
+    updated_build = db.session.execute(
+        db.select(Build).filter_by(id=1)
+    ).scalar_one_or_none()
+
+    assert updated_build is not None
+    assert updated_build.name == 'MySpace Evolved'
+    assert updated_build.description == 'Updated project description details text'
+    assert updated_build.instructions == 'Updated build testing execution steps guide'
+    assert updated_build.link == 'https://wikipedia.org_modified'
+    assert updated_build.tag == 'Professional'

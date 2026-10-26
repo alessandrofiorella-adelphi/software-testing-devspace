@@ -11,17 +11,67 @@
     <a href="{{ url_for('home') }}">Home</a>
 </div>
 <center>
-    <!-- The "buildTable" is the container for all of a user's builds. -->
+    <button class="button" id="uploadBuildTriggerBtn"> Upload New Build </button>
+
+    <div id="newBuild" class="display-container {% if invalid_build %} expanded {% else %} hidden-card {% endif %}">
+        <button class="close-card-btn">&times;</button>
+        <div class="display-container-detailed-window">
+            <h2>Upload your new build here: </h2>
+            <form action="/uploadBuild" method="POST" id="uploadBuildForm">
+                <div id="gridContainer">
+                    <label for="buildName">Name:</label>
+                    <input type="text" id="buildName" name="buildName" placeholder="" required>
+
+                    <label for="description">Description:</label>
+                    <input type="text" id="description" name="description" placeholder="" required>
+
+                    <label for="instructions">Instructions:</label>
+                    <input type="text" id="instructions" name="instructions" placeholder="" required>
+
+                    <label for="link">Build Link:</label>
+                    <input type="text" id="link" name="link" placeholder="" required>
+
+                    <label for="tag">Tag:</label>
+                    <input type="text" id="tag" name="tag" placeholder="Personal, Professional, or Educational" required>
+                    <p>{{invalid_build}}</p>
+                </div>
+                <br><br>
+                <button type="submit" class="button">Upload</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="editBuildCard" class="display-container hidden-card">
+        <button class="close-card-btn">&times;</button>
+        <div class="display-container-detailed-window">
+            <h2>Edit your build here: </h2>
+            <form action="" method="POST" id="editBuildForm">
+                <div id="gridContainer">
+                    <label for="editBuildName">Name:</label>
+                    <input type="text" id="editBuildName" name="buildName" required>
+
+                    <label for="editDescription">Description:</label>
+                    <input type="text" id="editDescription" name="description" required>
+
+                    <label for="editInstructions">Instructions:</label>
+                    <input type="text" id="editInstructions" name="instructions" required>
+
+                    <label for="editLink">Build Link:</label>
+                    <input type="text" id="editLink" name="link" required>
+
+                    <label for="editTag">Tag:</label>
+                    <input type="text" id="editTag" name="tag" required>
+                </div>
+                <br><br>
+                <button type="submit" class="button">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
     <div id="buildTable" {% if not builds %} hidden {% endif %}>
     {% for build in builds %}
-        <!-- Each build is put in it's own styled "display container" -->
-        <div class="display-container">
-            <!-- Close Button (hidden until expanded) -->
+        <div class="display-container" data-id="{{ build.id }}" data-name="{{ build.name }}" data-description="{{ build.description }}" data-instructions="{{ build.instructions }}" data-link="{{ build.link }}" data-tag="{{ build.tag }}">
             <button class="close-card-btn">&times;</button>
-
-            <!-- Main Content Display (unexpanded) -->
-            <!--   Maybe the instructions aren't needed in this view either? -->
-            <!--   That could be replaced by a counter indicating the number of pending comments for a particular build? -->
             <div class="display-container-main-content">
                 <h1>{{ build.name }}</h1>
                 <p><b>Description:</b> {{ build.description }}</p>
@@ -29,18 +79,15 @@
                 <form action="{{ build.link }}" method="GET" style="display:inline;">
                     <button type="submit" class="button">Build</button>
                 </form>
+                <button type="button" class="button edit-card-trigger-btn">Edit</button>
                 <form action="{{ url_for('dev', id=build.id) }}" method="POST" style="display:inline;">
                     <button type="submit" class="button">Delete</button>
                 </form>
             </div>
 
-            <!-- Feedback (hidden until card expands) -->
             <div class="display-container-detailed-window">
                 <h2>Feedback</h2>
                 <div class="feedback-columns-grid">
-                    <!-- Feedback is currently not tied to a specific build when querying, so all feedback shows up in all builds. -->
-
-                    <!-- Approval Needed -->
                     <div class="feedback-column">
                         <h3>Approval Needed</h3>
                         {% for comment in build.feedbacks %}
@@ -62,7 +109,6 @@
                         {% endfor %}
                     </div>
 
-                    <!-- Comment Accepted -->
                     <div class="feedback-column">
                         <h3>Accepted</h3>
                         {% for comment in build.feedbacks %}
@@ -81,7 +127,6 @@
                         {% endfor %}
                     </div>
 
-                    <!-- Comment Rejected -->
                     <div class="feedback-column">
                         <h3>Rejected</h3>
                         {% for comment in build.feedbacks %}
@@ -99,51 +144,53 @@
                             {% endif %}
                         {% endfor %}
                     </div>
-
                 </div>
             </div>
         </div>
     {% endfor %}
     <br>
 </div>
-
-<!-- Makes the "New Build" Form Visible -->
-<button onclick="toggleVisibility()"> Upload New Build </button>
-
-<div id="newBuild" {% if not invalid_build %}hidden{% endif %}>
-    <h2>Upload your new build here: </h2>
-    <form action="/uploadBuild" method="POST" id="uploadBuildForm">
-        <div id="gridContainer">
-            <label for="buildName">Name:</label>
-            <input type="text" id="buildName" name="buildName" placeholder="" required>
-
-            <label for="description">Description:</label>
-            <input type="text" id="description" name="description" placeholder="" required>
-
-            <label for="instructions">Instructions:</label>
-            <input type="text" id="instructions" name="instructions" placeholder="" required>
-
-            <label for="link">Build Link:</label>
-            <input type="text" id="link" name="link" placeholder="" required>
-            <p>{{invalid_build}}</p>
-
-        </div>
-        <br><br>
-        <button type="submit">Upload</button>
-    </form>
-</div>
 </center>
-
 <script>
-        function toggleVisibility() {
+        /*unction toggleVisibility() {
             var element = document.getElementById("newBuild");
-            // Toggles the 'hidden' class on click
             element.toggleAttribute("hidden");
-        }
+        }*/
 
         document.addEventListener('DOMContentLoaded', () => {
         const table = document.getElementById('buildTable');
         const overlay = document.getElementById('cardOverlay');
+        const uploadBtn = document.getElementById('uploadBuildTriggerBtn');
+        const newBuildCard = document.getElementById('newBuild');
+        const editBuildCard = document.getElementById('editBuildCard');
+        const editForm = document.getElementById('editBuildForm');
+
+        if (uploadBtn && newBuildCard) {
+            uploadBtn.addEventListener('click', (e) => {
+                newBuildCard.classList.remove('hidden-card');
+                newBuildCard.classList.add('expanded');
+                document.body.classList.add('card-open');
+                e.stopPropagation();
+            });
+
+            newBuildCard.addEventListener('click', (e) => {
+                const isCloseButton = e.target.classList.contains('close-card-btn');
+                if (isCloseButton) {
+                    newBuildCard.classList.add('hidden-card');
+                    closeActiveCard();
+                }
+            });
+        }
+
+        if (editBuildCard) {
+            editBuildCard.addEventListener('click', (e) => {
+                const isCloseButton = e.target.classList.contains('close-card-btn');
+                if (isCloseButton) {
+                    editBuildCard.classList.add('hidden-card');
+                    closeActiveCard();
+                }
+            });
+        }
 
         if (!table) return;
 
@@ -152,36 +199,66 @@
             if (!card) return;
 
             const isCloseButton = e.target.classList.contains('close-card-btn');
-            const isFormAction = e.target.closest('form') || e.target.closest('button');
+            const isEditButton = e.target.classList.contains('edit-card-trigger-btn');
+            const isFormAction = e.target.closest('form') || e.target.closest('button:not(.button)');
 
-            // Close the window if the close button is clicked.
             if (isCloseButton) {
                 closeActiveCard();
                 return;
             }
 
-            // Check if the window is already open.
+            if (isEditButton) {
+                if (editBuildCard && editForm) {
+                    const bId = card.getAttribute('data-id');
+                    const bName = card.getAttribute('data-name');
+                    const bDesc = card.getAttribute('data-description');
+                    const bInst = card.getAttribute('data-instructions');
+                    const bLink = card.getAttribute('data-link');
+                    const bTag = card.getAttribute('data-tag');
+
+                    // 1. Close any open expanded build card first
+                    closeActiveCard();
+
+                    // 2. Pre-fill and display the Edit build card interface
+                    editForm.action = "/editBuild/" + bId;
+                    document.getElementById('editBuildName').value = bName;
+                    document.getElementById('editDescription').value = bDesc;
+                    document.getElementById('editInstructions').value = bInst;
+                    document.getElementById('editLink').value = bLink;
+                    document.getElementById('editTag').value = bTag;
+
+                    editBuildCard.classList.remove('hidden-card');
+                    editBuildCard.classList.add('expanded');
+                    document.body.classList.add('card-open');
+                }
+                return;
+            }
+
             if (card.classList.contains('expanded')) {
                 return;
             }
 
-            // Open the window.
-            if (!isFormAction) {
+            if (!isFormAction || e.target.classList.contains('button')) {
                 card.classList.add('expanded');
                 document.body.classList.add('card-open');
             }
         });
 
-        overlay.addEventListener('click', closeActiveCard);
+        if (overlay) {
+            overlay.addEventListener('click', closeActiveCard);
+        }
 
-        // Un-expand the card.
         function closeActiveCard() {
             const expandedCard = document.querySelector('.display-container.expanded');
             if (expandedCard) {
                 expandedCard.classList.remove('expanded');
+                if (expandedCard.id === 'newBuild' || expandedCard.id === 'editBuildCard') {
+                    expandedCard.classList.add('hidden-card');
+                }
             }
             document.body.classList.remove('card-open');
         }
         });
 </script>
+
 {% endblock %}

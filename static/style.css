@@ -21,12 +21,6 @@
 	grid-template-columns: 1fr 1fr;
 }
 
-@media (max-width: 600px) {
-  #gridContainer {
-    grid-template-columns: 1fr;
-  }
-}
-
 /*
 *	Navbar
 */
@@ -66,7 +60,7 @@
 }
 
 /*
-* Login
+*	Login
 */
 #loginButtons,
 #logoutButton {
@@ -153,6 +147,11 @@
     padding-top: 20px;
 }
 
+#newBuild.display-container.expanded .display-container-detailed-window,
+#editBuildCard.display-container.expanded .display-container-detailed-window {
+    border-top: none;
+}
+
 .container-overlay {
     position: fixed;
     top: 0;
@@ -168,6 +167,18 @@ body.card-open .container-overlay {
     display: block;
 }
 
+.hidden-card:not(.expanded) {
+    display: none !important;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+/*
+*	Feedback Interface Elements
+*/
 .feedback-columns-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -226,14 +237,15 @@ body.card-open .container-overlay {
     margin-top: 8px;
 }
 
-.btn-sm {
-    padding: 4px 8px;
-    font-size: 12px;
-}
-
 /*
 *	Responsive Design
 */
+@media (max-width: 600px) {
+  #gridContainer {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (min-width: 600px) {
     .display-container {
         flex: 0 0 calc(50% - 8px);

@@ -280,11 +280,11 @@ def register_routes(app, db, bcrypt):
             else:
                 print("Invalid tag!")
                 return redirect(url_for('dev'))
-            
+
             try:
                 db.session.commit()
             except Exception:
                 db.session.rollback()
-                return redirect(url_for('editBuild'))
+                return redirect(url_for('editBuild', id=id))
 
             return redirect(url_for('dev'))
