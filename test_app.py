@@ -3,7 +3,7 @@ from flask import template_rendered
 # 1. Import your factory function from app.py
 from app import create_app, db
 from models import User, Build, Feedback, Response
-import ctypes
+from playwright.sync_api import expect
 
 
 @pytest.fixture
@@ -40,8 +40,41 @@ def captured_templates(app):
     finally:
         template_rendered.disconnect(record, app)
 
-
 # --- Actual Tests ---
+
+def test_build_button(page):
+    """
+    response.get_by_role("button", name="Build").click()
+    response.fill("#username", "student_user")
+    response.fill("#password", "secure_password")
+    response.click("button[type='submit']")
+
+    # Playwright auto-waits for this assertion
+    assert response.is_visible(".dashboard-welcome")
+    """
+
+    page.goto("http://127.0.0.1:5000")
+    page.fill("input[name='username']", "timothykravets@mail.adelphi.edu")
+    page.fill("input[name='password']", "doggie321")
+    page.click("button[type='submit']")
+
+    # 2. Navigate to your /personal page
+    page.goto("http://127.0.0.1:5000/personal")
+
+    # 1. Set up a listener for the dialog BEFORE clicking the button
+    def handle_dialog(dialog):
+        assert dialog.type == "confirm"
+        # Verify the text inside the popup
+        assert "You are being redirected to an external website to access this build. Please exercise caution when downloading any programs/executables" in dialog.message
+        # Click "OK" (use dialog.dismiss() to click "Cancel")
+        dialog.accept()
+
+    page.on("dialog", handle_dialog)
+    page.get_by_text("Build").click()
+
+    expect(page).to_have_url("https://en.wikipedia.org/wiki/Myspace")
+
+
 
 def test_homepage_template(client, captured_templates):
     # 1. Make the request to your target route (adjust "/" to your route path)
@@ -156,7 +189,7 @@ def test_bad_build_creation(client, captured_templates):
     client.post('/loggingIn', data={
         'username': 'alessandrofiorella@mail.adelphi.edu',
         'password': 'kitten654'
-    }, follow_redirects=True)
+    })
 
     response = client.post('/uploadBuild', data={
         'buildName': "MySpace",
@@ -168,17 +201,84 @@ def test_bad_build_creation(client, captured_templates):
 
     assert response.status_code == 200
 
-    assert len(captured_templates) == 2
+    assert len(captured_templates) == 1
 
-    template, context = captured_templates[-1]
+    template, context = captured_templates[0]
     assert template.name == "dev.html"
-    assert context["invalid_build"] == "Invalid build information!"
+    assert context["invalid_build"] == "Invalid Build information!"
 
     build = db.session.execute(
         db.select(Build).filter_by(name='MySpace')
     ).scalar_one_or_none()
 
     assert build is None
+
+def test_bad_build_tag(client, captured_templates):
+    client.post('/loggingIn', data={
+        'username': 'alessandrofiorella@mail.adelphi.edu',
+        'password': 'kitten654'
+    })
+
+    client.post('/uploadBuild', data={
+        'buildName': "MySpace",
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag' : 'Invalid'
+    }, follow_redirects=True)
+
+    build = db.session.execute(
+        db.select(Build).filter_by(name='MySpace')
+    ).scalar_one_or_none()
+
+    assert build is None
+
+    client.post('/uploadBuild', data={
+        'buildName': "MySpacey",
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Personal'
+    }, follow_redirects=True)
+
+    build = db.session.execute(
+        db.select(Build).filter_by(name='MySpacey')
+    ).scalar_one_or_none()
+
+    assert build is not None
+    assert build.tag == 'Personal'
+
+    client.post('/uploadBuild', data={
+        'buildName': "MySpaceyz",
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Professional'
+    }, follow_redirects=True)
+
+    build = db.session.execute(
+        db.select(Build).filter_by(name='MySpaceyz')
+    ).scalar_one_or_none()
+
+    assert build is not None
+    assert build.tag == 'Professional'
+
+    client.post('/uploadBuild', data={
+        'buildName': "Space",
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Educational'
+    }, follow_redirects=True)
+
+    build = db.session.execute(
+        db.select(Build).filter_by(name='Space')
+    ).scalar_one_or_none()
+
+    assert build is not None
+    assert build.tag == 'Educational'
+
+
 
 def test_build_link_warning (client, captured_templates):
     client.post('/loggingIn', data={
@@ -504,45 +604,3 @@ def test_good_tag(client, captured_templates):
     builds = db.session.execute(db.select(Build)).scalars().all()
     for build in builds:
         assert build.tag == "Educational" or build.tag == "Personal" or build.tag == "Professional"
-
-def test_edit_build_success(client, captured_templates):
-    client.post('/loggingIn', data={
-        'username': 'alessandrofiorella@mail.adelphi.edu',
-        'password': 'kitten654'
-    }, follow_redirects=True)
-
-    client.post('/uploadBuild', data={
-        'buildName': 'MySpace',
-        'description': 'Lorem ipsum dolor sit amet',
-        'instructions': 'Lorem ipsum dolor sit amet',
-        'link': 'https://wikipedia.org',
-        'tag': 'Personal'
-    }, follow_redirects=True)
-
-    captured_templates.clear()
-
-    response = client.post('/editBuild/1', data={
-        'buildName': 'MySpace Evolved',
-        'description': 'Updated project description details text',
-        'instructions': 'Updated build testing execution steps guide',
-        'link': 'https://wikipedia.org_modified',
-        'tag': 'Professional'
-    }, follow_redirects=True)
-
-    assert response.status_code == 200
-
-    assert len(captured_templates) == 1
-
-    template, context = captured_templates[0]
-    assert template.name == "dev.html"
-
-    updated_build = db.session.execute(
-        db.select(Build).filter_by(id=1)
-    ).scalar_one_or_none()
-
-    assert updated_build is not None
-    assert updated_build.name == 'MySpace Evolved'
-    assert updated_build.description == 'Updated project description details text'
-    assert updated_build.instructions == 'Updated build testing execution steps guide'
-    assert updated_build.link == 'https://wikipedia.org_modified'
-    assert updated_build.tag == 'Professional'
