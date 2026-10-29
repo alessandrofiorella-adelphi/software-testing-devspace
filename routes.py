@@ -42,19 +42,20 @@ def register_routes(app, db, bcrypt):
     @app.route('/dev')
     @login_required
     def dev():
-        builds = Build.query.filter_by(developerID=current_user.uid).all()
-        allFeedback = []
-        rejected = False
-        accepted = False
-        for build in builds:
-            feedback = Feedback.query.filter_by(buildId=build.id).all()
-            allFeedback += feedback
-            for elem in feedback:
-                if elem.rejected:
-                    rejected = True
-                if elem.accepted:
-                    accepted = True
-        return render_template('dev.html', builds=builds, feedback = allFeedback, rejected = rejected, accepted = accepted), 200
+        if current_user.is_dev:
+            builds = Build.query.filter_by(developerID=current_user.uid).all()
+            allFeedback = []
+            rejected = False
+            accepted = False
+            for build in builds:
+                feedback = Feedback.query.filter_by(buildId=build.id).all()
+                allFeedback += feedback
+                for elem in feedback:
+                    if elem.rejected:
+                        rejected = True
+                    if elem.accepted:
+                        accepted = True
+            return render_template('dev.html', builds=builds, feedback = allFeedback, rejected = rejected, accepted = accepted), 200
 
     @app.route('/uploadBuild', methods=['GET', 'POST'])
     @login_required
@@ -218,6 +219,12 @@ def register_routes(app, db, bcrypt):
     @app.route('/respond/<int:id>', methods=['GET', 'POST'])
     @login_required
     def respond(id):
+        feedback = Feedback.query.filter_by(id=id).first()
+        return render_template('respond.html', feedback=feedback), 200
+
+    @app.route('/giveRespond/<int:id>', methods=['GET', 'POST'])
+    @login_required
+    def giveResponse(id):
         if request.method == 'GET':
             if current_user.is_dev:
                 return redirect(url_for('dev'))
