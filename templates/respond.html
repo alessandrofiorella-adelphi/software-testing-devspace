@@ -11,7 +11,7 @@
     <a href="{{ url_for('home') }}">Home</a>
 </div>
 <center>
-<form action="{{ url_for('giveFeedback', id=build.id) }}" method="POST" style="display:inline;">
+<form action="{{ url_for('giveResponse', id=comment.id) }}" method="POST" style="display:inline;">
     <textarea name="comment" rows = "5" cols = "50" required> </textarea>
     <br>
     <button type="submit" class="button">Respond</button>
