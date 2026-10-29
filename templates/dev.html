@@ -118,6 +118,9 @@
                                 <div class="feedback-item-cell"> {{ comment.comment }} </div>
                                 <div class="feedback-item-cell"> {{ comment.user.fname}} {{ comment.user.lname }}</div>
                                 <div class="feedback-item-cell">
+                                    <form action="{{ url_for('respond', id=comment.id) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="button">Respond</button>
+                                    </form>
                                     <form action="{{ url_for('rejectFeedback', id=comment.id) }}" method="POST" style="display:inline;">
                                         <button type="submit" class="button"> Reject Feedback </button>
                                     </form>
@@ -136,6 +139,9 @@
                             <div class="feedback-item-cell"> {{ comment.comment }} </div>
                             <div class="feedback-item-cell"> {{ comment.user.fname}} {{ comment.user.lname }}</div>
                             <div class="feedback-item-cell">
+                                <form action="{{ url_for('respond', id=comment.id) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="button">Respond</button>
+                                </form>
                                 <form action="{{ url_for('acceptFeedback', id=comment.id) }}" method="POST" style="display:inline;">
                                     <button type="submit" class="button"> Approve Feedback </button>
                                 </form>

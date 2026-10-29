@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Home Page{% endblock %}
+{% block body_id %}homeBody{% endblock %}
+{% block content %}
+
+<div class="navbar" id="loginButtons">
+    <a href="{{ url_for('logout') }}">Logout</a>
+</div>
+
+<div class="navbar">
+    <a href="{{ url_for('home') }}">Home</a>
+</div>
+<center>
+<form action="{{ url_for('giveFeedback', id=build.id) }}" method="POST" style="display:inline;">
+    <textarea name="comment" rows = "5" cols = "50" required> </textarea>
+    <br>
+    <button type="submit" class="button">Respond</button>
+</form>
+</center>
+{% endblock %}
