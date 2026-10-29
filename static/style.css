@@ -242,23 +242,56 @@ body.card-open .container-overlay {
     font-size: 14px;
 }
 
+.feedback-column {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
 .feedback-item-row {
-    display: block;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
     background: #F7F4EA;
-    border: 1.5px dotted black;
-    padding: 10px;
-    margin-bottom: 12px;
+    border-bottom: 1px solid #ddd;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    padding: 12px 8px;
+    margin-bottom: 0;
     text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.feedback-item-row:last-child {
+    border-bottom: none;
 }
 
 .feedback-item-cell {
-    margin-bottom: 5px;
+    margin-bottom: 0;
+    padding-right: 10px;
 }
 
 .feedback-item-cell:last-child {
     margin-bottom: 0;
-    margin-top: 8px;
+    margin-top: 0;
+    flex-shrink: 0;
 }
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.display-container-main-content .button {
+    display: inline-block;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
 
 /*
 *	Responsive Design

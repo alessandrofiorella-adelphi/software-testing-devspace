@@ -11,53 +11,25 @@
     <a href="{{ url_for('home') }}">Home</a>
 </div>
 
-<center>
-    <!-- Testers should be able to see all comments they've left. -->
-    <div id="buildTable" {% if not feedbacks %} hidden {% endif %}>
+<div class="main-accessible-wrapper">
+    <main id="mainContent">
+        <div id="buildTable" {% if not feedback %} hidden {% endif %}>
+        {% for comment in feedback %}
+            <div class="display-container" data-static="true">
+                <button class="close-card-btn" aria-label="Close details block panel">&times;</button>
 
-    {% for comment in feedbacks %}
-        <!-- Each comment is put in its own styled "display container" -->
-        <div class="display-container">
-            <!-- Close Button (hidden until expanded) -->
-            <button class="close-card-btn">&times;</button>
-
-            <!-- Main Content Display (unexpanded) -->
-            <div class="display-container-main-content">
-                <h2>{{ comment.comment }}</h2>
-                <p><b>Date Tested: </b> {{ comment.date }}</p>
-                <p><b>Project: </b> {{ comment.build.name }} </p>
-            </div>
-
-            <!-- Feedback (hidden until card expands) -->
-            <div class="display-container-detailed-window">
                 <div class="display-container-main-content">
-                    <h1>{{ comment.build.name }}</h1>
-                    <p><b>Description:</b> {{ comment.build.description }}</p>
-                    <p><b>Instructions:</b> {{ comment.build.instructions }}</p>
-                    <form action="{{ comment.build.link }}" method="GET" style="display:inline;">
-                        <button type="submit" class="button">Build</button>
-                    </form>
-                </div>
-
-                <h2>Comments From All Users On This Project</h2>
-                <div class="feedback-column">
-                    {% for allComment in comment.build.feedbacks %}
-                        {% if allComment.accepted %}
-                            <div class="feedback-item-row">
-                                <div class="feedback-item-cell"> {{ allComment.date }} </div>
-                                <div class="feedback-item-cell"> {{ allComment.comment }} </div>
-                                <div class="feedback-item-cell"> {{ allComment.user.fname }} {{ allComment.user.lname }}</div>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
+                    <h2>{{ comment.comment }}</h2>
+                    <p><b>Date Tested: </b> {{ comment.date }}</p>
+                    <p><b>Project: </b> {{ comment.build.name }}</p>
+                    <a href="{{ url_for('home') }}#build-{{ comment.build.id }}" class="button" style="text-decoration: none; margin-left: 10px;">Go To Build</a>
                 </div>
             </div>
-
+        {% endfor %}
+        <br>
         </div>
-    {% endfor %}
+    </main>
+</div>
 
-    <br>
-    </div>
-</center>
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 {% endblock %}

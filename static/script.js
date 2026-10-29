@@ -1,6 +1,8 @@
 function toggleVisibility() {
     var element = document.getElementById("newBuild");
-    element.toggleAttribute("hidden");
+    if (element) {
+        element.toggleAttribute("hidden");
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -38,68 +40,86 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (!table) return;
+        if (table) {
+        table.addEventListener('click', (e) => {
+            const card = e.target.closest('.display-container');
+            if (!card) return;
 
-    table.addEventListener('click', (e) => {
-        const card = e.target.closest('.display-container');
-        if (!card) return;
+            // Prevent expansion mechanics if the element is configured as a static row
+            if (card.getAttribute('data-static') === 'true') {
+                return;
+            }
 
-        const isCloseButton = e.target.classList.contains('close-card-btn');
-        const isEditButton = e.target.classList.contains('edit-card-trigger-btn');
-        const isFormAction = e.target.closest('form') || e.target.closest('button:not(.button)');
+            const isCloseButton = e.target.classList.contains('close-card-btn');
+            const isEditButton = e.target.classList.contains('edit-card-trigger-btn');
+            const isFormAction = e.target.closest('form') || e.target.closest('button:not(.button)');
 
-        if (isCloseButton) {
-            closeActiveCard();
-            return;
-        }
-
-        if (isEditButton) {
-            if (editBuildCard && editForm) {
-                const bId = card.getAttribute('data-id');
-                const bName = card.getAttribute('data-name');
-                const bDesc = card.getAttribute('data-description');
-                const bInst = card.getAttribute('data-instructions');
-                const bLink = card.getAttribute('data-link');
-                const bTag = card.getAttribute('data-tag');
-
+            if (isCloseButton) {
                 closeActiveCard();
+                return;
+            }
 
-                editForm.action = "/editBuild/" + bId;
-                document.getElementById('editBuildName').value = bName;
-                document.getElementById('editDescription').value = bDesc;
-                document.getElementById('editInstructions').value = bInst;
-                document.getElementById('editLink').value = bLink;
-                document.getElementById('editTag').value = bTag;
+            if (isEditButton) {
+                if (editBuildCard && editForm) {
+                    const bId = card.getAttribute('data-id');
+                    const bName = card.getAttribute('data-name');
+                    const bDesc = card.getAttribute('data-description');
+                    const bInst = card.getAttribute('data-instructions');
+                    const bLink = card.getAttribute('data-link');
+                    const bTag = card.getAttribute('data-tag');
 
-                editBuildCard.classList.remove('hidden-card');
-                editBuildCard.classList.add('expanded');
+                    closeActiveCard();
+
+                    editForm.action = "/editBuild/" + bId;
+                    document.getElementById('editBuildName').value = bName;
+                    document.getElementById('editDescription').value = bDesc;
+                    document.getElementById('editInstructions').value = bInst;
+                    document.getElementById('editLink').value = bLink;
+                    document.getElementById('editTag').value = bTag;
+
+                    editBuildCard.classList.remove('hidden-card');
+                    editBuildCard.classList.add('expanded');
+                    document.body.classList.add('card-open');
+                }
+                return;
+            }
+
+            if (card.classList.contains('expanded')) {
+                return;
+            }
+
+            if (!isFormAction || e.target.classList.contains('button')) {
+                card.classList.add('expanded');
                 document.body.classList.add('card-open');
             }
-            return;
-        }
-
-        if (card.classList.contains('expanded')) {
-            return;
-        }
-
-        if (!isFormAction || e.target.classList.contains('button')) {
-            card.classList.add('expanded');
-            document.body.classList.add('card-open');
-        }
-    });
+        });
+    }
 
     if (overlay) {
         overlay.addEventListener('click', closeActiveCard);
     }
 
-    function closeActiveCard() {
-        const expandedCard = document.querySelector('.display-container.expanded');
-        if (expandedCard) {
-            expandedCard.classList.remove('expanded');
-            if (expandedCard.id === 'newBuild' || expandedCard.id === 'editBuildCard') {
-                expandedCard.classList.add('hidden-card');
-            }
+function closeActiveCard() {
+    const expandedCard = document.querySelector('.display-container.expanded');
+    if (expandedCard) {
+        expandedCard.classList.remove('expanded');
+        if (expandedCard.id === 'newBuild' || expandedCard.id === 'editBuildCard') {
+            expandedCard.classList.add('hidden-card');
         }
-        document.body.classList.remove('card-open');
     }
+    document.body.classList.remove('card-open');
+}
+
+const initialHash = window.location.hash;
+if (initialHash && initialHash.startsWith('#build-')) {
+    const targetCard = document.querySelector(initialHash);
+    if (targetCard) {
+        setTimeout(() => {
+            closeActiveCard();
+            targetCard.classList.add('expanded');
+            document.body.classList.add('card-open');
+            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    }
+}
 });

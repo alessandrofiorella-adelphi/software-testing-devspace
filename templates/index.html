@@ -23,7 +23,7 @@
     <div id="buildTable" {% if not builds %} hidden {% endif %}>
     {% for build in builds %}
         <!-- Each build is put in it's own styled "display container" -->
-        <div class="display-container">
+        <div id="build-{{ build.id }}" class="display-container">
             <!-- Close Button (hidden until expanded) -->
             <button class="close-card-btn">&times;</button>
 
