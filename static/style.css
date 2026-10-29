@@ -16,6 +16,10 @@
     flex-direction: row;
 }
 
+body {
+   background-color: #DED9E2;
+}
+
 #gridContainer {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
@@ -30,21 +34,21 @@
 }
 
 .navbar a {
-	padding: 8px;
-	margin-right: 15px;
-	border: 1px solid black;
+	padding: 6px;
+	margin-right: 10px;
+	border: 1.5px solid black;
 	text-decoration: none;
-	color: white;
-	font-size: 24px;
-	background: black;
+    color: #1C1B1F;
+	font-size: 20px;
+	background: #EB8258;
 }
 
 .navbar a:hover {
-	background-color: gray;
+	background-color: #C0B9DD;
 }
 
 .navbar .active {
-	background: gray;
+	background: #C0B9DD;
 }
 
 /*
@@ -98,8 +102,8 @@
 }
 
 .display-container {
-    background-color: #ffffff;
-    border: 2px solid #4f2c1d;
+    background-color: #F7F4EA;
+    border: 2px solid black;
     padding: 20px;
     box-sizing: border-box;
     box-shadow: 0 6px 12px rgba(79, 44, 29, 0.15);
@@ -119,7 +123,7 @@
     overflow-y: auto;
     z-index: 999;
     cursor: default;
-    background: #ffffff;
+    background: #F7F4EA;
     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
 }
 
@@ -133,7 +137,7 @@
     position: absolute;
     top: 15px;
     right: 20px;
-    background: none;
+    background: #F7F4EA;
     border: none;
     font-size: 28px;
     cursor: pointer;
@@ -143,7 +147,7 @@
 .display-container.expanded .display-container-detailed-window {
     display: block;
     margin-top: 25px;
-    border-top: 2px dashed #e0e0e0;
+    border-top: 2px dashed black;
     padding-top: 20px;
 }
 
@@ -158,7 +162,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.4);
+    background: #F7F4EA;
     z-index: 998;
     display: none;
 }
@@ -176,6 +180,25 @@ body.card-open .container-overlay {
     font-size: 12px;
 }
 
+.button {
+   padding: 8px;
+   margin-right: 15px;
+   border: 1.5px solid black;
+   text-decoration: none;
+   color: black;
+   font-size: 18px;
+   background: #75C9C8;
+   margin-top: 10px;
+}
+
+.button:hover {
+   background-color: #C0B9DD;
+}
+
+.button .active {
+   background: #C0B9DD;
+}
+
 /*
 *	Feedback Interface Elements
 */
@@ -188,21 +211,21 @@ body.card-open .container-overlay {
 
 .feedback-col {
     background: #fdfcfa;
-    border: 1px solid #eaddd7;
+    border: 1px solid black;
     padding: 15px;
 }
 
 .feedback-col h3 {
     margin-top: 0;
     font-size: 16px;
-    border-bottom: 2px solid #4f2c1d;
+    border-bottom: 2px solid black;
     padding-bottom: 5px;
-    color: #4f2c1d;
+    color: black;
 }
 
 .feedback-item {
-    background: white;
-    border: 1px solid #eee;
+    background: #F7F4EA;
+    border: 1px solid black;
     padding: 10px;
     margin-bottom: 10px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -221,8 +244,8 @@ body.card-open .container-overlay {
 
 .feedback-item-row {
     display: block;
-    background: #ffffff;
-    border: 1px solid #ddd;
+    background: #F7F4EA;
+    border: 1.5px dotted black;
     padding: 10px;
     margin-bottom: 12px;
     text-align: left;
@@ -249,6 +272,15 @@ body.card-open .container-overlay {
 @media (min-width: 600px) {
     .display-container {
         flex: 0 0 calc(50% - 8px);
+    }
+    .navbar a {
+       padding: 8px;
+       margin-right: 15px;
+       border: 1.5px solid black;
+       text-decoration: none;
+       color: black;
+       font-size: 24px;
+       background: #EB8258;
     }
 }
 
