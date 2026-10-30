@@ -56,6 +56,7 @@ def register_routes(app, db, bcrypt):
                     if elem.accepted:
                         accepted = True
             return render_template('dev.html', builds=builds, feedback = allFeedback, rejected = rejected, accepted = accepted), 200
+        return redirect(url_for('tester'))
 
     @app.route('/uploadBuild', methods=['GET', 'POST'])
     @login_required
@@ -222,14 +223,11 @@ def register_routes(app, db, bcrypt):
         feedback = Feedback.query.filter_by(id=id).first()
         return render_template('respond.html', feedback=feedback), 200
 
-    @app.route('/giveRespond/<int:id>', methods=['GET', 'POST'])
+    @app.route('/giveResponse/<int:id>', methods=['GET', 'POST'])
     @login_required
     def giveResponse(id):
         if request.method == 'GET':
-            if current_user.is_dev:
-                return redirect(url_for('dev'))
-            else:
-                return redirect(url_for('tester'))
+            return redirect(url_for('dev'))
         elif request.method == 'POST':
             responseTime = datetime.date.fromisoformat(request.form.get('responseTime'))
             comment = request.form.get('comment')
@@ -242,24 +240,22 @@ def register_routes(app, db, bcrypt):
                 db.session.rollback()
                 return redirect(url_for('respond', id=id))
 
-            if current_user.is_dev:
-                return redirect(url_for('dev'))
-            else:
-                return redirect(url_for('tester'))
+            return redirect(url_for('dev'))
 
     @app.route('/verify', methods=['GET', 'POST'])
     @login_required
     def verify():
         email = current_user.username
+        print(email)
         if (email[-3:] == "edu"):
             current_user.verified = True
+            current_user.is_dev = True
+            db.session.commit()
+            db.session.refresh(current_user)
         else:
             print("Not Verified")
 
-        if current_user.is_dev:
-            return redirect(url_for('dev'))
-        else:
-            return redirect(url_for('tester'))
+        return redirect(url_for('dev'))
 
     @app.route('/crash', methods=['GET', 'POST'])
     def crash():

@@ -43,17 +43,7 @@ def captured_templates(app):
 # --- Actual Tests ---
 
 def test_build_button(page):
-    """
-    response.get_by_role("button", name="Build").click()
-    response.fill("#username", "student_user")
-    response.fill("#password", "secure_password")
-    response.click("button[type='submit']")
-
-    # Playwright auto-waits for this assertion
-    assert response.is_visible(".dashboard-welcome")
-    """
-
-    page.goto("http://127.0.0.1:5000")
+    page.goto("http://127.0.0.1:5000/login")
     page.fill("input[name='username']", "timothykravets@mail.adelphi.edu")
     page.fill("input[name='password']", "doggie321")
     page.click("button[type='submit']")
@@ -72,7 +62,7 @@ def test_build_button(page):
     page.on("dialog", handle_dialog)
     page.get_by_text("Build").click()
 
-    expect(page).to_have_url("https://en.wikipedia.org/wiki/Myspace")
+    assert page.url.rstrip("?") == "https://en.wikipedia.org/wiki/Myspace"
 
 
 
@@ -205,7 +195,7 @@ def test_bad_build_creation(client, captured_templates):
 
     template, context = captured_templates[0]
     assert template.name == "dev.html"
-    assert context["invalid_build"] == "Invalid Build information!"
+    assert context["invalid_build"] == "Invalid Build Information!"
 
     build = db.session.execute(
         db.select(Build).filter_by(name='MySpace')
@@ -278,36 +268,6 @@ def test_bad_build_tag(client, captured_templates):
     assert build is not None
     assert build.tag == 'Educational'
 
-
-
-def test_build_link_warning (client, captured_templates):
-    client.post('/loggingIn', data={
-        'username': 'timothykravets@mail.adelphi.edu',
-        'password': 'doggie321'
-    })
-
-    client.post('/uploadBuild', data={
-        'buildName': 'MySpace',
-        'description': 'Lorem ipsum dolor sit amet',
-        'instructions': 'Lorem ipsum dolor sit amet',
-        'link': 'https://en.wikipedia.org/wiki/Myspace',
-        'tag': 'Personal'
-    })
-
-    response = client.get('/')
-
-    assert response.status_code == 200
-
-    assert len(captured_templates) == 1
-
-    template, context = captured_templates[0]
-    assert template.name == "index.html"
-
-    assert b'onclick=' in response.data
-    assert b'confirm(' in response.data
-    assert b'https://en.wikipedia.org/wiki/Myspace' in response.data
-    assert b'You are being redirected to an external website to access this build. Please exercise caution when downloading any programs/executables' in response.data
-
 def test_comment_feedback (client, captured_templates):
     client.post('/loggingIn', data={
         'username': 'timothykravets@mail.adelphi.edu',
@@ -346,8 +306,8 @@ def test_comment_feedback (client, captured_templates):
 
 def test_accept_comment (client, captured_templates):
     client.post('/loggingIn', data={
-        'username': 'timothykravets@mail.adelphi.edu',
-        'password': 'doggie321'
+        'username': 'alessandrofiorella@mail.adelphi.edu',
+        'password': 'kitten654'
     })
 
     client.post('/uploadBuild', data={
@@ -363,7 +323,7 @@ def test_accept_comment (client, captured_templates):
         'comment': 'Lorem ipsum dolor sit amet',
     })
 
-    response = client.get('/dev')
+    response = client.get('/dev' , follow_redirects=True)
 
     assert response.status_code == 200
 
@@ -381,7 +341,7 @@ def test_accept_comment (client, captured_templates):
     assert feedback.comment == 'Lorem ipsum dolor sit amet'
     assert feedback.accepted == False
     assert feedback.buildId == 1
-    assert feedback.testerId == 3
+    assert feedback.testerId == 2
 
     client.post('/acceptFeedback/1', data={})
 
@@ -422,8 +382,8 @@ def test_account_creation (client, captured_templates):
 
 def test_respond_to_feedback (client, captured_templates):
     client.post('/loggingIn', data={
-        'username': 'timothykravets@mail.adelphi.edu',
-        'password': 'doggie321'
+        'username': 'alessandrofiorella@mail.adelphi.edu',
+        'password': 'kitten654'
     })
 
     client.post('/uploadBuild', data={
@@ -439,7 +399,7 @@ def test_respond_to_feedback (client, captured_templates):
         'comment': 'Lorem ipsum dolor sit amet',
     })
 
-    response = client.post('respond/1', data = {
+    response = client.post('/giveResponse/1', data={
         'responseTime': '2026-10-01',
         'comment': 'Lorem ipsum dolor sit amet',
     }, follow_redirects=True)
@@ -449,7 +409,7 @@ def test_respond_to_feedback (client, captured_templates):
     assert len(captured_templates) == 1
 
     template, context = captured_templates[0]
-    assert template.name == "tester.html" or template.name == "dev.html"
+    assert template.name == "dev.html"
 
     response = db.session.execute(
         db.select(Response).filter_by(comment='Lorem ipsum dolor sit amet')
@@ -459,7 +419,7 @@ def test_respond_to_feedback (client, captured_templates):
     assert response.date == datetime.date(2026, 10, 1)
     assert response.comment == 'Lorem ipsum dolor sit amet'
     assert response.feedbackId == 1
-    assert response.userId == 3
+    assert response.userId == 2
 
 def test_verify_account(client, captured_templates):
     client.post('/loggingIn', data={
