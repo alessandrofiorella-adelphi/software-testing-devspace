@@ -528,7 +528,12 @@ def test_good_tag(client, captured_templates):
     for build in builds:
         assert build.tag == "Educational" or build.tag == "Personal" or build.tag == "Professional"
 
-def test_good_tag(client, captured_templates):
+def test_sql_username_injection(client, captured_templates):
+    client.post('/loggingIn', data={
+        'username': 'alessandrofiorella@mail.adelphi.edu',
+        'password': 'kitten654'
+    })
+
     client.post('/uploadBuild', data={
         'buildName': 'MySpace',
         'description': 'Lorem ipsum dolor sit amet',
@@ -537,30 +542,46 @@ def test_good_tag(client, captured_templates):
         'tag': 'Personal'
     })
 
-    client.post('/uploadBuild', data={
-        'buildName': 'MySpace',
-        'description': 'Lorem ipsum dolor sit amet',
-        'instructions': 'Lorem ipsum dolor sit amet',
-        'link': 'https://en.wikipedia.org/wiki/Myspace',
-        'tag': 'Professional'
-    })
+    client.get('/logout')
 
-    client.post('/uploadBuild', data={
-        'buildName': 'MySpace',
-        'description': 'Lorem ipsum dolor sit amet',
-        'instructions': 'Lorem ipsum dolor sit amet',
-        'link': 'https://en.wikipedia.org/wiki/Myspace',
-        'tag': 'Educational'
-    })
+    response = client.post('/loggingIn', data={
+        'username': '; DROP TABLE builds; --',
+        'password': 'doggie321'
+    }, follow_redirects=True)
 
-    client.post('/uploadBuild', data={
-        'buildName': 'MySpace',
-        'description': 'Lorem ipsum dolor sit amet',
-        'instructions': 'Lorem ipsum dolor sit amet',
-        'link': 'https://en.wikipedia.org/wiki/Myspace',
-        'tag': 'All of them'
-    })
 
+    assert response.status_code == 200
     builds = db.session.execute(db.select(Build)).scalars().all()
-    for build in builds:
-        assert build.tag == "Educational" or build.tag == "Personal" or build.tag == "Professional"
+    assert len(builds) == 1
+    assert builds[0].name == 'MySpace'
+
+def test_sql_password_injection(client, captured_templates):
+    client.post('/loggingIn', data={
+        'username': 'alessandrofiorella@mail.adelphi.edu',
+        'password': 'kitten654'
+    })
+
+    client.post('/uploadBuild', data={
+        'buildName': 'MySpace',
+        'description': 'Lorem ipsum dolor sit amet',
+        'instructions': 'Lorem ipsum dolor sit amet',
+        'link': 'https://en.wikipedia.org/wiki/Myspace',
+        'tag': 'Personal'
+    })
+
+    client.get('/logout')
+
+    response = client.post('/loggingIn', data={
+        'username': 'timothykravets@mail.adelphi.edu',
+        'password': '; DROP TABLE builds; --'
+    }, follow_redirects=True)
+
+
+    assert response.status_code == 200
+    builds = db.session.execute(db.select(Build)).scalars().all()
+    assert len(builds) == 1
+    assert builds[0].name == 'MySpace'
+
+
+
+

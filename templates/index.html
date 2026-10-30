@@ -15,7 +15,15 @@
 
 <div class="navbar">
     <a href="{{ url_for('home') }}">Home</a>
-    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    {% if current_user.is_dev %}
+    <a href="{{ url_for('dev') }}"> Developer </a>
+    <a href="{{ url_for('tester') }}"> Tester </a>
+    {% else %}
+    <a href="{{ url_for('tester') }}"> Dashboard </a>
+    {% endif %}
+    <a href="{{ url_for('educational') }}">Educational</a>
+    <a href="{{ url_for('professional') }}">Professional</a>
+    <a href="{{ url_for('personal') }}">Personal</a>
 </div>
 
 <center>
