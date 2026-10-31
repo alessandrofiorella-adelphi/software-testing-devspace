@@ -11,13 +11,18 @@
     <a href="{{ url_for('home') }}">Home</a>
 </div>
 <center>
-<form action="{{ url_for('giveFeedback', id=build.id) }}" method="POST" style="display:inline;">
-    <label for="testTime"></label>
-    <input type="date" name="testTime" id="testTime" required>
-    <br>
-    <textarea name="comment" rows = "5" cols = "50" required> </textarea>
-    <br>
-    <button type="submit" class="button">Comment</button>
-</form>
+    <div id="loginForm">
+        <form action="{{ url_for('giveFeedback', id=build.id) }}" method="POST" style="display:inline;">
+            <label for="testTime">Date Tested:</label>
+            <input type="date" name="testTime" id="testTime" required>
+            <br>
+            <br>
+            <label for="comment">Comment:</label>
+            <br>
+            <textarea name="comment" rows = "5" cols = "40" required> </textarea>
+            <br>
+            <button type="submit" class="button">Send</button>
+        </form>
+    </div>
 </center>
 {% endblock %}
