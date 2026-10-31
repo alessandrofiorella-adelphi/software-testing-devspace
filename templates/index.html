@@ -12,32 +12,28 @@
     {% endif %}
 </div>
 
-
 <div class="navbar">
     <a href="{{ url_for('home') }}">Home</a>
     {% if current_user.is_dev %}
-    <a href="{{ url_for('dev') }}"> Developer </a>
-    <a href="{{ url_for('tester') }}"> Tester </a>
-    {% else %}
-    <a href="{{ url_for('tester') }}"> Dashboard </a>
+    <a href="{{ url_for('dev') }}"> My Builds </a>
+    <a href="{{ url_for('tester') }}"> My Comments </a>
     {% endif %}
-    <a href="{{ url_for('educational') }}">Educational</a>
-    <a href="{{ url_for('professional') }}">Professional</a>
-    <a href="{{ url_for('personal') }}">Personal</a>
+</div>
+
+<div class="filter-bar" role="navigation" aria-label="Build Project Category Filters">
+    <span class="filter-label">Filter Category:</span>
+    <a href="{{ url_for('home') }}" class="filter-tag">All</a>
+    <a href="{{ url_for('educational') }}" class="filter-tag">Educational</a>
+    <a href="{{ url_for('professional') }}" class="filter-tag">Professional</a>
+    <a href="{{ url_for('personal') }}" class="filter-tag">Personal</a>
 </div>
 
 <center>
-    <!-- The "buildTable" is the container for all of a user's builds. -->
     <div id="buildTable" {% if not builds %} hidden {% endif %}>
     {% for build in builds %}
-        <!-- Each build is put in it's own styled "display container" -->
         <div id="build-{{ build.id }}" class="display-container">
-            <!-- Close Button (hidden until expanded) -->
             <button class="close-card-btn">&times;</button>
 
-            <!-- Main Content Display (unexpanded) -->
-            <!--   Maybe the instructions aren't needed in this view either? -->
-            <!--   That could be replaced by a counter indicating the number of pending comments for a particular build? -->
             <div class="display-container-main-content">
                 <h1>{{ build.name }}</h1>
                 <p><b>Description:</b> {{ build.description }}</p>
@@ -50,7 +46,6 @@
                 </form>
             </div>
 
-            <!-- Feedback (hidden until card expands) -->
             <div class="display-container-detailed-window">
                 <h2>Comments</h2>
                 <div class="feedback-column">

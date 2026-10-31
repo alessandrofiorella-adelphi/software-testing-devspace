@@ -53,6 +53,47 @@ body {
 }
 
 /*
+*	Build Filter Layout Control System
+*/
+.filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+    padding: 10px;
+    width: fit-content;
+}
+
+.filter-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1C1B1F;
+    margin-right: 15px;
+}
+
+.filter-tag {
+    padding: 6px 12px;
+    margin-right: 10px;
+    border: 1.5px solid black;
+    border-radius: 0;
+    text-decoration: none;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: bold;
+    background: #5B426B;
+    transition: background-color 0.2s ease;
+}
+
+.filter-tag:last-child {
+    margin-right: 0;
+}
+
+.filter-tag:hover {
+    background-color: #422F4E;
+    color: #FFFFFF;
+}
+
+/*
 *	Comments
 */
 #commentsTable {
@@ -293,13 +334,20 @@ body.card-open .container-overlay {
     white-space: nowrap;
 }
 
-
 /*
 *	Responsive Design
 */
 @media (max-width: 600px) {
   #gridContainer {
     grid-template-columns: 1fr;
+  }
+  .filter-bar {
+      flex-direction: column;
+      gap: 8px;
+  }
+  .filter-label {
+      margin-right: 0;
+      margin-bottom: 5px;
   }
 }
 

@@ -9,6 +9,10 @@
 
 <div class="navbar">
     <a href="{{ url_for('home') }}">Home</a>
+    {% if current_user.is_dev %}
+    <a href="{{ url_for('dev') }}"> My Builds </a>
+    <a href="{{ url_for('tester') }}"> My Comments </a>
+    {% endif %}
 </div>
 <center>
     <button class="button" id="uploadBuildTriggerBtn"> Upload New Build </button>
