@@ -215,7 +215,9 @@ def register_routes(app, db, bcrypt):
                 print("Account creation error:", e)
                 return redirect(url_for('createAccount'))
 
-            return redirect(url_for('login'))
+            login_user(user)
+
+            return verify()
 
     @app.route('/respond/<int:id>', methods=['GET', 'POST'])
     @login_required
