@@ -223,7 +223,7 @@ def register_routes(app, db, bcrypt):
     @login_required
     def respond(id):
         feedback = Feedback.query.filter_by(id=id).first()
-        return render_template('respond.html', feedback=feedback), 200
+        return render_template('respond.html', comment=feedback), 200
 
     @app.route('/giveResponse/<int:id>', methods=['GET', 'POST'])
     @login_required
@@ -231,7 +231,7 @@ def register_routes(app, db, bcrypt):
         if request.method == 'GET':
             return redirect(url_for('dev'))
         elif request.method == 'POST':
-            responseTime = datetime.date.fromisoformat(request.form.get('responseTime'))
+            responseTime = datetime.date.today()
             comment = request.form.get('comment')
 
             response = Response(responseTime, comment, id, current_user.uid)
