@@ -80,6 +80,7 @@
                 <h1>{{ build.name }}</h1>
                 <p><b>Description:</b> {{ build.description }}</p>
                 <p><b>Instructions:</b> {{ build.instructions }}</p>
+                <p><b>Tag:</b> <i>{{ build.tag }}</i></p>
                 <form action="{{ build.link }}" method="GET" style="display:inline;">
                     <button type="submit" class="button">Build</button>
                 </form>

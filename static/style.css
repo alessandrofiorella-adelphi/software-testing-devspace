@@ -104,6 +104,30 @@ body {
 #comment {
     margin-bottom: 50px;
 }
+.feedback-divider {
+    border-top: 2px dashed black;
+    margin: 20px 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/*
+*	Conditional Buttons
+*/
+.expanded-actions-wrapper {
+    display: none;
+}
+
+.display-container.expanded .unexpanded-actions-wrapper {
+    display: none !important;
+}
+
+.display-container.expanded .expanded-actions-wrapper {
+    display: block !important;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
 
 /*
 *	Login
@@ -188,9 +212,7 @@ body {
 
 .display-container.expanded .display-container-detailed-window {
     display: block;
-    margin-top: 25px;
-    border-top: 2px dashed black;
-    padding-top: 20px;
+    border-top: none;
 }
 
 #newBuild.display-container.expanded .display-container-detailed-window,
@@ -242,7 +264,7 @@ body.card-open .container-overlay {
 }
 
 /*
-*	Feedback Interface Elements
+*	Feedback
 */
 .feedback-columns-grid {
     display: grid;
@@ -335,7 +357,7 @@ body.card-open .container-overlay {
 }
 
 /*
-*	Responsive Design
+*	Responsiveness
 */
 @media (max-width: 600px) {
   #gridContainer {

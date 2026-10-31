@@ -34,19 +34,37 @@
         <div id="build-{{ build.id }}" class="display-container">
             <button class="close-card-btn">&times;</button>
 
+            <!-- Main view layout box: visible only when unexpanded -->
             <div class="display-container-main-content">
                 <h1>{{ build.name }}</h1>
+                <p><b>Created By:</b> {{ build.user.fname}} {{ build.user.lname }}</p>
                 <p><b>Description:</b> {{ build.description }}</p>
-                <p><b>Instructions:</b> {{ build.instructions }}</p>
-                <form action="{{ build.link }}" method="GET" >
-                    <a href="{{build.link}}" style="display:inline;"> <button type="submit" class="button">Build</button> </a>
-                </form>
-                <form action="{{ url_for('comment', id=build.id) }}" method="POST" style="display:inline;">
-                    <button type="submit" class="button">Comment</button>
-                </form>
+
+                <div class="unexpanded-actions-wrapper">
+                    <form action="{{ build.link }}" method="GET" style="display: inline-block;">
+                        <a href="{{build.link}}" style="display:inline;"> <button type="submit" class="button">Build</button> </a>
+                    </form>
+                    <form action="{{ url_for('comment', id=build.id) }}" method="POST" style="display: inline-block;">
+                        <button type="submit" class="button">Comment</button>
+                    </form>
+                </div>
             </div>
 
+            <!-- Detailed window layout box: visible only when expanded -->
             <div class="display-container-detailed-window">
+                <p><b>Instructions:</b>{{ build.instructions }}</p>
+                <p><b>Tag:</b> <i>{{ build.tag }}</i></p>
+
+                <div class="expanded-actions-wrapper">
+                    <form action="{{ build.link }}" method="GET" style="display: inline-block;">
+                        <a href="{{build.link}}" style="display:inline;"> <button type="submit" class="button">Build</button> </a>
+                    </form>
+                    <form action="{{ url_for('comment', id=build.id) }}" method="POST" style="display: inline-block;">
+                        <button type="submit" class="button">Comment</button>
+                    </form>
+                </div>
+
+                <div class="feedback-divider" role="presentation"></div>
                 <h2>Comments</h2>
                 <div class="feedback-column">
                         {% for comment in build.feedbacks %}
@@ -65,6 +83,7 @@
     <br>
 </div>
 </center>
+
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 {% endblock %}
