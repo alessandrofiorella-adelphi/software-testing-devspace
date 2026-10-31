@@ -3,6 +3,9 @@
 {% block body_id %}loginBody{% endblock %}
 {% block content %}
 <div class="navbar" id="loginButtons">
+    <a href="{{ url_for('signup') }}">Sign Up</a>
+</div>
+<div class="navbar" id="loginButtons">
     <a href="{{ url_for('login') }}">Login</a>
 </div>
 
@@ -11,7 +14,7 @@
 </div>
 <center>
     <div id="login">
-        <h2>Enter Information Here: </h2>
+        <h2>Create an Account</h2>
         <form action="/loggingIn" method="POST" id="loginForm">
             <div id="gridContainer">
                 <label for="username">Username:</label>
@@ -22,8 +25,8 @@
                 <p>{{wrong_password}}</p>
 
             </div>
-            <br><br>
-            <button type="submit">Login</button>
+            <br>
+            <button type="submit" class="button">Create Account</button>
         </form>
     </div>
 </center>
