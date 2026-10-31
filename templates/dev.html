@@ -20,7 +20,7 @@
     <div id="newBuild" class="display-container {% if invalid_build %} expanded {% else %} hidden-card {% endif %}">
         <button class="close-card-btn">&times;</button>
         <div class="display-container-detailed-window">
-            <h2>Upload your new build here: </h2>
+            <h2>Input Build Details: </h2>
             <form action="/uploadBuild" method="POST" id="uploadBuildForm">
                 <div id="gridContainer">
                     <label for="buildName">Name:</label>
@@ -48,7 +48,7 @@
     <div id="editBuildCard" class="display-container hidden-card">
         <button class="close-card-btn">&times;</button>
         <div class="display-container-detailed-window">
-            <h2>Edit your build here: </h2>
+            <h2>Edit Build Details: </h2>
             <form action="" method="POST" id="editBuildForm">
                 <div id="gridContainer">
                     <label for="editBuildName">Name:</label>
